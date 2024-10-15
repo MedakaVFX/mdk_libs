@@ -1,0 +1,2 @@
+# mdklibs
+VFX用Pythonライブラリ
