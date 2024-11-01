@@ -62,7 +62,7 @@ def get_current_version_num(filepath) -> int:
         例外の名前: 例外の説明 (例 : 引数が指定されていない場合に発生 )
 
     Examples: 
-        >>> kpspp.path.get_new_version('Y:/test_project/assets/v001/CharaB_Model_v001.dat')
+        >>> mdk.path.get_new_version('Y:/test_project/assets/v001/CharaB_Model_v001.dat')
         4
 
     Note:
@@ -104,7 +104,7 @@ def get_current_version_path(filepath) -> str:
         例外の名前: 例外の説明 (例 : 引数が指定されていない場合に発生 )
 
     Examples: 
-        >>> kpspp.path.get_new_version('Y:/test_project/assets/v001/CharaB_Model_v001.dat')
+        >>> mdk.path.get_new_version('Y:/test_project/assets/v001/CharaB_Model_v001.dat')
         `Y:/test_project/assets/v002/CharaB_Model_v002.dat`
 
     Note:
@@ -134,7 +134,7 @@ def get_version_num(filepath):
         例外の名前: 例外の説明 (例 : 引数が指定されていない場合に発生 )
 
     Examples: 
-        >>> kpspp.path.get_new_version('Y:/test_projectv002/assets_V01/v003/CharaB_Model_v0004.v001.dat')
+        >>> mdk.path.get_new_version('Y:/test_projectv002/assets_V01/v003/CharaB_Model_v0004.v001.dat')
         4
 
     Note:
@@ -158,9 +158,9 @@ def get_versions(filepath) -> list:
         例外の名前: 例外の説明 (例 : 引数が指定されていない場合に発生 )
 
     Examples: 
-        >>> kpspp.path.get_new_version('Y:/test_project/assets/v003/CharaB_Model_v0004.v001.dat')
+        >>> mdk.path.get_new_version('Y:/test_project/assets/v003/CharaB_Model_v0004.v001.dat')
         ['v003', 'v0004', 'v001']
-        >>> kpspp.path.get_new_version('Y:/test_projectv002/assets_V01/v003/CharaB_Model_v0004.v001.dat')
+        >>> mdk.path.get_new_version('Y:/test_projectv002/assets_V01/v003/CharaB_Model_v0004.v001.dat')
         ['v003', 'v0004', 'v001']
 
     Note:
@@ -192,10 +192,10 @@ def version_up(filepath, num: int=1) -> str:
 
     Examples: 
         >>> path = 'Y:/test_projectv002/assets_V01/v003/CharaB_Model_v0004.v001.dat'
-        >>> kp.spp.path.version_up(path, num = 2)
+        >>> mdk.path.version_up(path, num = 2)
         `Y:/test_projectv002/assets_V01/v005/CharaB_Model_v0006.v003.dat`
         >>> path = 'Y:/test_projectv002/assets_V01/v003/CharaB_Model_v0004.v001.dat'
-        >>> kp.spp.path.version_up(path, num = -1)
+        >>> mdk.path.version_up(path, num = -1)
         `Y:/test_projectv002/assets_V01/v002/CharaB_Model_v0003.v000.dat`
     Note:
         注意事項などを記載
