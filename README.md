@@ -1,10 +1,12 @@
 # mdklibs
 ---
 VFX用Pythonライブラリ
+- Linux、Mac、Windowsクロスプラットフォーム
 
 ## v0.0.1
-- Added : 基本構造作成
-- Added : mdklibs.path モジュール
+- added : 基本構造作成
+- added : mdklibs.file モジュール
+- added : mdklibs.path モジュール
 
 
 ## Recommended 
@@ -26,7 +28,6 @@ VFX用Pythonライブラリ
 - changed : test #1
 - updated : test #1
 - fixed : test #1
-
 
 ## Examples
 ``` python

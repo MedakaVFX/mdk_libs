@@ -14,8 +14,11 @@ Release Note:
 """
 
 import glob
+import os
 import pathlib
+import platform
 import re
+import subprocess
 
 
 #=======================================#
@@ -32,6 +35,9 @@ FILE_FILTER_TEXT = re.compile(r'.+\.(doc|txt|text|json|py|usda|nk|sh|zsh|bat|md)
 
 
 
+#=======================================#
+# Funcsions
+#=======================================#
 def as_posix(filepath: str) -> str:
     """ 
     Args:
@@ -165,8 +171,6 @@ def get_versions(filepath) -> list:
 
     Note:
         * バージョンは `._/` で区切られ、小文字の `v` から始まる数字の連続
-        * re.split(r'[._/]+', path)
-        * re.match(r'(v\d+)', str)
 
     """
     _path = as_posix(filepath)
@@ -174,6 +178,51 @@ def get_versions(filepath) -> list:
     _result = [_item for _item in _items if re.match(r'(v\d+)', _item)]
 
     return _result
+
+
+def open_dir(filepath):
+    """
+    フォルダを開く
+    """
+    _filepath = pathlib.Path(filepath)
+    OS_NAME = platform.system()
+
+    if _filepath.exists():
+        if _filepath.is_file():
+            _filepath = _filepath.parent
+
+        if OS_NAME == 'Windows':
+            cmd = 'explorer {}'.format(str(_filepath))
+            subprocess.Popen(cmd)
+
+        elif OS_NAME == 'Darwin':
+            subprocess.Popen(['open', _filepath])
+
+        else:
+            subprocess.Popen(["xdg-open", _filepath])
+
+
+
+def open_in_explorer(filepath: str):
+    """
+    Explorerでフォルダを開く
+    """
+    if os.path.exists(filepath):
+        if platform.system() == 'Windows':
+            filepath = str(filepath)
+            filepath = filepath.replace('/', '\\')
+
+            filebrowser = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
+            subprocess.run([filebrowser, '/select,', os.path.normpath(filepath)])
+        
+        elif platform.system() == 'Darwin':
+            subprocess.call(['open', filepath])
+        
+        else:
+            subprocess.Popen(["xdg-open", filepath])
+    else:
+        raise FileNotFoundError(f'File is not found.')
+
 
 
 def version_up(filepath, num: int=1) -> str:
