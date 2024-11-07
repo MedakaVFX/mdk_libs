@@ -30,19 +30,20 @@ import mdklibs as mdk
 #=======================================#
 # Settings
 #=======================================#
-CSV_FILEPATH = r'C:\Users\ta_yamagishi\temp\data.csv'
+ROOT = r'C:\Users\ta_yamagishi\temp'
+CSV_FILEPATH = rf'{ROOT}\data.csv'
 DICT_DATA = {
     'Aida': 18,
     'Suzuki': 35,
     'Yamada': 24,
     'yamagishi': 20,
 }
-FILEPATH = r'C:\Users\ta_yamagishi\temp\pic001.png'
-JSON_FILEPATH = r'C:\Users\ta_yamagishi\temp\json_file.json'
+FILEPATH = rf'{ROOT}\pic001.png'
+JSON_FILEPATH = rf'{ROOT}\json_file.json'
 REPLACE_LIST = [['Yamagishi', 'Tanaka'], ['YYYY', '2024'], ['MM/DD', '11/07'],]
 URL_IMAGE = r'https://avatars.githubusercontent.com/u/174575702?v=4'
 TEXT_DATA = 'Tatsuya Yamagishi\nYYYY/MM/DD'
-TEXT_FILEPATH = r'C:\Users\ta_yamagishi\temp\readme.txt'
+TEXT_FILEPATH = rf'{ROOT}\readme.txt'
 #=======================================#
 # Main
 #=======================================#
