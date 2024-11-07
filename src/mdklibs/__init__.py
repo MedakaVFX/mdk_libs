@@ -11,7 +11,6 @@ Release Note:
     * v0.0.1 2024-11-01 Tatsuya Yamagishi
         * added: path
 """
-
 VERSION = 'v0.0.1'
 NAME = 'mdklibs'
 
@@ -27,6 +26,7 @@ if os.environ.get('MDK_DEBUG'):
 #=======================================#
 # Import Modules
 #=======================================#
+from . import file
 from . import path
 
 
