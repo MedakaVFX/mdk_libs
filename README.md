@@ -39,10 +39,22 @@ mdk.version()
 mdk.name()
 # mdklibs
 
+
+# ---------------------
+# mdk.libs
 mdk.path.get_versions('c:/t-yamagishi/v01/asset_v0002.mb')
 # ['v01', 'v0002']
 
 mdk.path.version_up('c:/t-yamagishi/v01/asset_v0002.mb')
 # 'c:/t-yamagishi/v02/asset_v0003.mb'
+
+mdk.path.open_in_explorer('c:/t-yamagishi/v01/asset_v0002.mb')
+
+# ---------------------
+# mdk.file
+mdk.file.open_file('C:\Users\ta_yamagishi\temp\pic001.png')
+mdk.file.save_text(<filepath>, 'test')
+mdk.file.save_json(<filepath>, <dict>)
+mdk.file.save_csv(<filepath>, <list[list[str]]>)
 ```
 
