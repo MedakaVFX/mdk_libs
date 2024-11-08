@@ -59,6 +59,15 @@ mdk.file.save_csv(<filepath>, <list[list[str]]>)
 ```
 
 ## パス式の評価
+| Vars | Description |
+| ---- | ---- |
+| {} | {}で囲むことでエクスプレッション評価をします |
+| {`str`} | {}内に文字を書くと変数名になります。 |
+| %expr% | %name% 関数名 |
+| {`int`} | {1} 引数の番号 |
+| {&`str`} | {} 内で&から始まる文字はexpr名 |
+
+
 ``` python
 import mdklibs as mdk
 
