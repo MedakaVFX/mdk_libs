@@ -96,4 +96,9 @@ _expr = r'_expr = r'{ROOT}/assets/{ASSET}/publish/{TASK}/%new_version%/{&asset_s
 _result = mdk.Path.eval(_expr, '.ma')
 print(_result)
 # C:/Users/ta_yamagishi/temp/show/assets/CharaA/publish/modeling/v0001/CharaA_modeling_head_v0001.mb
+
+_expr = r'{ROOT}/{SHOW}/dailies/dailies_{DEP}_{YYYY}{MM}{DD}'
+_result = _path.eval(_expr)
+print(_result)
+# C:\Users\ta_yamagishi\temp\show/PRJ/dailies/dailies_3d_20241108
 ```

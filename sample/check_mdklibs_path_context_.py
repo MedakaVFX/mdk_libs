@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # C:/Users/ta_yamagishi/temp/show/PRJ/shots/ep0_010/0020/ep0_010_0020_comp_v0001.nk
 
 
-    _expr = r'{ROOT}/{SHOW}/dailies/dailies_{DEP}-{YYYY}{MM}{DD}'
+    _expr = r'{ROOT}/{SHOW}/dailies/dailies_{DEP}_{YYYY}{MM}{DD}'
     _result = _path.eval(_expr)
     print(_result)
-    # C:\Users\ta_yamagishi\temp\show/PRJ/dailies/dailies_3d-20241108
+    # C:\Users\ta_yamagishi\temp\show/PRJ/dailies/dailies_3d_20241108
