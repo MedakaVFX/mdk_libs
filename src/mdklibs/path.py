@@ -513,9 +513,12 @@ class Path:
             _func = getattr(self, _cmd)
             _result = _func(*args[1:])
 
+        
+        self.set_value(_result)
+
         return _result
     
-    
+
 
     def exists(self) -> bool:
         """ ファイルが存在するかどうか？ """
@@ -652,4 +655,12 @@ class Path:
         
         """
         return stem(self.get_value())
+    
+
+    def version_up(self, num=1):
+        _result = version_up(self.get_value, num=num)
+
+        self.set_value(_result)
+
+        return _result
     
