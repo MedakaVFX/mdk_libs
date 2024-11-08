@@ -44,6 +44,7 @@ REPLACE_LIST = [['Yamagishi', 'Tanaka'], ['YYYY', '2024'], ['MM/DD', '11/07'],]
 URL_IMAGE = r'https://avatars.githubusercontent.com/u/174575702?v=4'
 TEXT_DATA = 'Tatsuya Yamagishi\nYYYY/MM/DD'
 TEXT_FILEPATH = rf'{ROOT}\readme.txt'
+
 #=======================================#
 # Main
 #=======================================#
