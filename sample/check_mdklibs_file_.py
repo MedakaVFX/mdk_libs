@@ -3,12 +3,12 @@
 * モジュールの読み込み用テストコード
 
 Version:
-    * Created : v0.0.1 2024-11-01 Tatsuya YAMAGISHI
+    * Created : v0.0.1 2024-11-08 Tatsuya YAMAGISHI
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>
  
 Release Note:
-    * v0.0.1 2024-11-01 Tatsuya Yamagishi
+    * v0.0.1 2024-11-08 Tatsuya Yamagishi
         * New
 """
 global logger

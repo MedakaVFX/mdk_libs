@@ -4,13 +4,13 @@
 * ファイルパスは基本的にposix_pathで処理
 
 Version:
-    * Created : v0.0.1 2024-11-01 Tatsuya YAMAGISHI
+    * Created : 2024-11-01 Tatsuya YAMAGISHI
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>
- 
-Release Note:
-    * v0.0.1 2024-11-01 Tatsuya Yamagishi
-        * New
+
+
+Info:
+    * LastUpdated : 2024-11-08 Tatsuya Yamagishi
 """
 import csv
 import urllib.request
@@ -19,6 +19,7 @@ import os
 import pathlib
 import platform
 import subprocess
+import shutil
 
 
 #=======================================#
@@ -29,6 +30,16 @@ import subprocess
 #=======================================#
 # Funcsions
 #=======================================#
+def delete(filepath):
+    """ ファイルを削除 """
+    if os.path.exists(filepath):
+        # os.chmod(filepath, 0755)
+        shutil.rmtree(filepath)
+
+    else:
+        raise FileNotFoundError(f'File is not found.\nfilepath={filepath}')
+    
+
 #=======================================#
 # I/O
 #=======================================#

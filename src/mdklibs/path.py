@@ -4,22 +4,24 @@
 * ファイルパスは基本的にposix_pathで処理
 
 Version:
-    * Created : v0.0.1 2024-11-01 Tatsuya YAMAGISHI
+    * Created : 2024-11-07 Tatsuya YAMAGISHI
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>
- 
-Release Note:
-    * v0.0.1 2024-11-01 Tatsuya Yamagishi
-        * New
-"""
 
+Info:
+    * LastUpdated : 2024-11-08 Tatsuya Yamagishi
+"""
+import datetime
 import glob
 import os
 import pathlib
 import platform
 import re
 import subprocess
+import shutil
 
+
+import mdklibs as mdk
 
 #=======================================#
 # Settings
@@ -123,6 +125,34 @@ def get_current_version_path(filepath) -> str:
     return version_up(filepath, _cur_num - _src_num)
 
 
+def get_new_version_path(filepath, up_num=1) -> str:
+    """
+
+    <filepath> から最新のバージョンパスを生成
+
+    Args:
+        filepath (:obj:`str or pathlib.Path`): ファイルパス
+
+    Returns:
+        str: 最新のバージョンパス
+
+    Raises:
+        例外の名前: 例外の説明 (例 : 引数が指定されていない場合に発生 )
+
+    Examples: 
+        >>> tylibs.path.get_new_version('Y:/test_project/assets/v001/CharaB_Model_v001.dat')
+        `Y:/test_project/assets/v002/CharaB_Model_v002.dat`
+
+    Note:
+        * ファイルパスに複数バージョンが含まれる場合、一番大きなバージョンが最大のバージョンとして扱われる。
+
+    """
+    latest_version = get_current_version_path(filepath)   
+    result = version_up(latest_version)
+        
+    return result
+
+
 
 def get_version_num(filepath):
     """
@@ -180,7 +210,12 @@ def get_versions(filepath) -> list:
     return _result
 
 
-def open_dir(filepath):
+
+def name(filepath: str) -> str:
+    return pathlib.Path(filepath).name
+
+
+def open_dir(filepath) -> None:
     """
     フォルダを開く
     """
@@ -225,6 +260,14 @@ def open_in_explorer(filepath: str):
 
 
 
+def stem(filepath: str) -> str:
+    return pathlib.Path(filepath).stem
+
+
+def suffix(filepath: str):
+    return pathlib.Path(filepath).suffix
+
+
 def version_up(filepath, num: int=1) -> str:
     """
 
@@ -263,3 +306,350 @@ def version_up(filepath, num: int=1) -> str:
         _result = _result.replace(_version, _new_version)
 
     return _result
+
+
+#=======================================#
+# Class
+#=======================================#
+class Path:
+    """ パス管理用モジュール 
+    
+    * Expression 機能
+    * pathlib.Pathがあるが、関数の仕様が思った通りで無い事もあり、専用のパス管理クラスを実装
+    * パスはposix_pathで管理
+
+    Attributes:
+        _value(str): ファイルパス
+        _variables(list[str]): 変数管理用
+
+    """
+
+    def __init__(self, filepath: str=None, mkdir: bool=False) -> None:
+        """
+        
+        Args:
+            filepath(str): ファイルパス
+            mkdir(bool): ディレクトリが無ければ作成
+        
+        """
+        # Settings
+        self._EXPR_FILTER = re.compile(r'{([@&$\w]+)}')
+        self._EXEC_FILTER = re.compile(r'%(.*?)%')
+
+
+        # ファイルパス管理変数
+        self._exprs: list = []
+        self._value: str = None # パスの値管理用
+        self._vars: dict = {} # 変数管理用
+        self._version_digits = 3
+        
+
+        # ファイルパスをセット
+        if filepath:
+            self.set_value(filepath)
+
+
+        # ディレクトリ作成
+        if mkdir is True:
+            pathlib.Path(self.get_value()).mkdir(parents=True, exist_ok=True)
+
+
+    def __str__(self):
+        return f'Class <mdklibs.Path>: {self.get_value()}'
+    
+
+
+    def add_dir(self, dirname: str) -> None:
+        """ フォルダを追加する 
+        
+        Args:
+            dirname(str): 追加するディレクトリ名
+
+        """
+        if os.path.isdir(self.get_value()):
+
+            if dirname:
+                pathlib.Path(f'{self.get_value()}/{dirname}').mkdir(parents=True, exist_ok=True)
+            else:
+                raise ValueError(f'dirname = {dirname}')
+            
+        else:
+            raise TypeError(f'"filepath" is not directory.')
+
+        
+
+    def delete(self):
+        mdk.file.delete(self.get_value())
+
+
+    def delete_files(self):
+        """ ファイルパス内の全てのファイルを削除 """
+        if self.exists():
+            _folder_path = self.get_value()
+
+            # フォルダ内のファイルを取得
+            _files = os.listdir(_folder_path)
+
+            # 各ファイルを削除
+            for _file_name in _files:
+                _file_path = os.path.join(_folder_path, _file_name)
+
+                try:
+                    if os.path.isfile(_file_path):
+                        os.unlink(_file_path)
+
+                    # もしファイルがディレクトリなら再帰的に削除        
+                    elif os.path.isdir(_file_path):
+                        shutil.rmtree(_file_path)
+
+                except Exception as e:
+                    print(f"ファイル {_file_path} を削除中にエラーが発生しました: {e}")
+
+
+
+    def exec_cmd(self, path):
+
+        _exec_list = self._EXEC_FILTER.findall(path)
+        
+        for _cmd in _exec_list:
+            _func = getattr(self, _cmd)
+            _result = _func(path)
+            
+        return _result
+    
+
+
+    def eval(self, *args):
+        """
+        Expressionの評価
+        """
+        # print('Path.eval')
+        _result = self.eval_expression(*args)
+
+        if self._EXEC_FILTER.findall(_result):
+            _result = self.exec_cmd(_result)
+
+        return _result
+        
+
+    def eval_expression(self, *args):
+        """
+        Expressionの評価
+        """
+        _context_path = args[0]
+        _items = self._EXPR_FILTER.findall(_context_path)
+        _cmds = list(set(_items))
+        
+
+        for _cmd in _cmds:
+            _result = self.eval_command(_cmd, *args[1:])
+
+            _src = '{'+_cmd+'}'
+            _dst = str(_result)
+
+            _context_path = _context_path.replace(_src, _dst)
+
+        return _context_path
+
+
+
+
+    def eval_command(self, *args) -> str:
+        """Description
+
+        * コマンドの評価メイン関数。
+ 
+        Args:
+            *args (*args): 可変長引数。第一引数はfile_path。コマンドによって引数は異なる。
+ 
+        Returns:
+            str: 生成されたファイルパス。
+        """
+        _cmd = args[0]
+        _result = _cmd
+
+        if _cmd.startswith('@'):
+            dirs = self._dirs.get(_cmd[1:])
+            _result = self.eval_expression(dirs)
+
+        elif _cmd.startswith('&'):
+            expr = self._exprs.get(_cmd[1:])
+            _result = self.eval_expression(expr)
+
+        elif _cmd.isdigit():
+            _result = args[int(_cmd)]
+
+        elif _cmd == 'YYYY':
+            dt = datetime.datetime.today()
+            _result = dt.strftime('%Y')
+            
+        elif _cmd == 'YY':
+            dt = datetime.datetime.today()
+            _result = dt.strftime('%y')
+
+        elif _cmd == 'MM':
+            dt = datetime.datetime.today()
+            _result = dt.strftime('%m')
+
+        elif _cmd == 'DD':
+            dt = datetime.datetime.today()
+            _result = dt.strftime('%d')
+
+        elif re.match('[0-9A-Z]+', _cmd):
+            try:
+                _result = self.get_var(_cmd)
+
+            except Exception as ex:
+                raise ValueError(ex)
+
+
+            if not _result:
+                _result = 'None'
+                _message = f'Command "{_cmd}" is not found.'
+
+                raise ValueError(_message)
+
+        else:
+            _func = getattr(self, _cmd)
+            _result = _func(*args[1:])
+
+        return _result
+    
+    
+
+    def exists(self) -> bool:
+        """ ファイルが存在するかどうか？ """
+        return os.path.exists(self.get_value())
+    
+
+    def get_var(self, key: str):
+        # print(f'key = {key}: {self._vars}')
+        # print(self._vars.get(key))
+        return self._vars.get(key)
+
+
+    def get_value(self) -> str:
+        """ パスを取得 """
+        return self._value
+    
+
+    def get_version_digits(self) -> int:
+        return self._version_digits
+    
+
+    def is_file(self) -> bool:
+        """ ファイル判定 """
+        return os.path.isfile(self.get_value())
+    
+
+    def is_dir(self) -> bool:
+        """ ディレクトリ判定 """
+        return os.path.isdir(self.get_value())
+
+
+    def listdir(self, ext=None, is_file=False, is_dir=False) -> list:
+        """ ディレクトリ内のファイルリストを返す """
+        if self.exists() and self.is_dir():
+            result = [Path(_path.as_posix())  for _path in pathlib.Path(self.get_value()).iterdir()
+                if not _path.name.startswith('.')
+                if not _path.name.endswith('.nk~')
+                if not _path.name.endswith('.autosave')
+            ]
+
+            if is_file:
+                return [_filepath for _filepath in result if _filepath.is_file()]
+
+            elif is_dir:
+                return [_filepath for _filepath in result if _filepath.is_dir()]
+            
+            elif ext:
+                return [_filepath for _filepath in result if _filepath.get_value().endswith(ext)]
+            
+            else:
+                return result
+            
+        else:
+            return []
+        
+
+    def name(self):
+        return name(self.get_value())
+    
+
+    def new_version(self, path):
+        _version_digits = self.get_version_digits()
+        _version = 'v'+str(0).zfill(_version_digits)
+        _path = path.replace(r'%new_version%', _version)
+
+        return get_new_version_path(_path)
+        
+
+    def open_dir(self) -> None:
+        open_dir(self.get_value())
+
+
+    def parent(self) -> object:
+        """ 親ディレクトリパスを返す """
+        return Path(os.path.dirname(self.get_value()))
+
+
+    def replace_text(self, replace_list: list[str]):
+        mdk.file.replace_text(self.get_value(), replace_list)
+
+
+    def relative_to(self, filepath: str):
+        """ 相対パスを返す """
+        return Path(os.path.relpath(self.get_value(), str(filepath)))
+    
+
+    def set_exprs(self, values: dict):
+        """ エクスプレションをセット """
+        if type(values) == dict:
+            self._exprs = values
+
+        else:
+            raise TypeError('Type is not dict.')
+
+
+    def set_value(self, value: str) -> str:
+        self._value = as_posix(value)
+
+        return self.get_value()
+    
+
+    def set_var(self, key: str, value):
+        """ 変数名で変数をセット """
+        self._vars[key] = value
+
+    def set_vars(self, values: dict):
+        """ 変数をセット """
+        if type(values) == dict:
+            self._vars = values
+
+        else:
+            raise TypeError('Type is not dict.')
+        
+
+    def set_version_digits(self, value: int):
+        if type(value) == int:
+            self._version_digits = value
+        else:
+            raise TypeError()
+
+
+
+    def suffix(self) -> str:
+        return suffix(self.get_value())
+    
+
+    def stem(self) -> str:
+        """ 拡張子を取り除いた名前部分を取得
+        
+        Examples:
+            >>> path = tylibs.path.TyPath(r'/typ14/typmgrs/PluginManager.py')
+            >>> print(path.stem())
+                PluginManager
+        
+        """
+        return stem(self.get_value())
+    

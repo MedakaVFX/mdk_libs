@@ -30,6 +30,7 @@ VFX用Pythonライブラリ
 - fixed : test #1
 
 ## Examples
+基本
 ``` python
 import mdklibs as mdk
 
@@ -38,7 +39,6 @@ mdk.version()
 
 mdk.name()
 # mdklibs
-
 
 # ---------------------
 # mdk.libs
@@ -58,3 +58,33 @@ mdk.file.save_json(<filepath>, <dict>)
 mdk.file.save_csv(<filepath>, <list[list[str]]>)
 ```
 
+## パス式の評価
+``` python
+import mdklibs as mdk
+
+ROOT = r'C:\Users\ta_yamagishi\temp\show'
+
+VARS = {
+    'ASSET':'CharaA',
+    'TASK': 'Modeling',
+}
+
+EXPRS = {
+    'asset_scene': r'{ASSET}_{TASK}_{ELEMENT}',
+    'shot_code': r'{EPI}_{SEQ}_{SHOT}',
+    'shot_scene': r'{EPI}_{SEQ}_{SHOT}_{TASK}_{ELEMENT}',
+}
+
+
+# エクスプレッションをセット
+_path.set_exprs(EXPRS)
+
+# 変数をセット
+_path.set_vars(VARS)
+
+# エクスプレッションを評価
+_expr = r'_expr = r'{ROOT}/assets/{ASSET}/publish/{TASK}/%new_version%/{&asset_scene}_%new_version%{EXT}'
+_result = mdk.Path.eval(_expr, '.ma')
+print(_result)
+# C:/Users/ta_yamagishi/temp/show/assets/CharaA/publish/modeling/v0001/CharaA_modeling_head_v0001.mb
+```
