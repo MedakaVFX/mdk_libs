@@ -30,6 +30,8 @@ from . import file
 from . import path
 
 
+from .path import Path
+
 
 #=======================================#
 # Functions
