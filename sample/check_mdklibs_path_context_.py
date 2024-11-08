@@ -77,17 +77,20 @@ if __name__ == '__main__':
     _expr = r'{ROOT}/assets/{ASSET}/publish/{TASK}/%new_version%/{&asset_scene}_%new_version%{EXT}'
     _result = _path.eval(_expr)
     print(_result)
+    # C:/Users/ta_yamagishi/temp/show/assets/CharaA/publish/modeling/v0001/CharaA_modeling_head_v0001.mb
 
 
     _expr = r'{ROOT}/assets/{ASSET}/publish/{TASK}/%new_version%/{&asset_scene}_%new_version%.{1}'
     _result = _path.eval(_expr, 'ma',)
     print(_result)
+    # C:/Users/ta_yamagishi/temp/show/assets/CharaA/publish/modeling/v0001/CharaA_modeling_head_v0001.ma
 
 
     # 0はexpressionで使用
     _expr = r'{1}_{2}_{3}'
     _result = _path.eval(_expr, 'test', 'hogehoge', '%new_version%')
     print(_result)
+    # test_hogehoge_v0001
 
 
     _path.set_var('SHOW', 'PRJ')
@@ -99,8 +102,10 @@ if __name__ == '__main__':
     _expr = r'{ROOT}/{SHOW}/shots/{EPI}_{SEQ}/{SHOT}/{&shot_scene}_%new_version%{EXT}'
     _result = _path.eval(_expr)
     print(_result)
+    # C:/Users/ta_yamagishi/temp/show/PRJ/shots/ep0_010/0020/ep0_010_0020_comp_v0001.nk
 
 
     _expr = r'{ROOT}/{SHOW}/dailies/dailies_{DEP}-{YYYY}{MM}{DD}'
     _result = _path.eval(_expr)
     print(_result)
+    # C:\Users\ta_yamagishi\temp\show/PRJ/dailies/dailies_3d-20241108
