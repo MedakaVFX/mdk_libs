@@ -2,7 +2,7 @@
  
 * パスエクスプレッション確認用モジュール
 
-Version:
+Info:
     * Created : v0.0.1 2024-11-08 Tatsuya YAMAGISHI
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>
@@ -64,13 +64,12 @@ if __name__ == '__main__':
     # バージョン桁数をセット
     _path.set_version_digits(4)
 
-    #----------------------------
     # エクスプレッションをセット
     _path.set_exprs(EXPRS)
 
-    #----------------------------
     # 変数をセット
     _path.set_vars(VARS)
+
 
     #----------------------------
     # エクスプレッションを評価
@@ -80,12 +79,16 @@ if __name__ == '__main__':
     # C:/Users/ta_yamagishi/temp/show/assets/CharaA/publish/modeling/v0001/CharaA_modeling_head_v0001.mb
 
 
+    #----------------------------
+    # エクスプレッションを評価
     _expr = r'{ROOT}/assets/{ASSET}/publish/{TASK}/%new_version%/{&asset_scene}_%new_version%.{1}'
     _result = _path.eval(_expr, 'ma',)
     print(_result)
     # C:/Users/ta_yamagishi/temp/show/assets/CharaA/publish/modeling/v0001/CharaA_modeling_head_v0001.ma
 
 
+    #----------------------------
+    # エクスプレッションを評価
     # 0はexpressionで使用
     _expr = r'{1}_{2}_{3}'
     _result = _path.eval(_expr, 'test', 'hogehoge', '%new_version%')
@@ -93,6 +96,8 @@ if __name__ == '__main__':
     # test_hogehoge_v0001
 
 
+    #----------------------------
+    # エクスプレッションを評価
     _path.set_var('SHOW', 'PRJ')
     _path.set_var('EPI', 'ep0')
     _path.set_var('SEQ', '010')
@@ -105,7 +110,15 @@ if __name__ == '__main__':
     # C:/Users/ta_yamagishi/temp/show/PRJ/shots/ep0_010/0020/ep0_010_0020_comp_v0001.nk
 
 
-    _expr = r'{ROOT}/{SHOW}/dailies/dailies_{DEP}_{YYYY}{MM}{DD}'
+
+    #----------------------------
+    # エクスプレッションを評価
+    _expr = r'{ROOT}/{SHOW}/dailies/dailies_{DEP}_{YY}{MM}{DD}'
     _result = _path.eval(_expr)
     print(_result)
     # C:\Users\ta_yamagishi\temp\show/PRJ/dailies/dailies_3d_20241108
+
+    _expr = r'{ROOT}/{SHOW}/dailies/dailies_{DEP}_{YYYY}-{MM}-{DD}'
+    _result = _path.eval(_expr)
+    print(_result)
+    # C:\Users\ta_yamagishi\temp\show/PRJ/dailies/dailies_3d_2024-11-08

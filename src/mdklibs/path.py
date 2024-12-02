@@ -3,12 +3,12 @@
 * path管理用モジュール
 * ファイルパスは基本的にposix_pathで処理
 
-Version:
+Info:
     * Created : 2024-11-07 Tatsuya YAMAGISHI
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>
 
-Info:
+Release Note:
     * LastUpdated : 2024-11-08 Tatsuya Yamagishi
 """
 import datetime
@@ -308,6 +308,10 @@ def version_up(filepath, num: int=1) -> str:
     return _result
 
 
+
+
+
+
 #=======================================#
 # Class
 #=======================================#
@@ -516,7 +520,7 @@ class Path:
         
         self.set_value(_result)
 
-        return _result
+        return as_posix(_result)
     
 
 

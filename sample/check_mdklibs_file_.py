@@ -2,15 +2,17 @@
  
 * モジュールの読み込み用テストコード
 
-Version:
+Info:
     * Created : v0.0.1 2024-11-08 Tatsuya YAMAGISHI
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>
- 
+
+     
 Release Note:
     * v0.0.1 2024-11-08 Tatsuya Yamagishi
         * New
 """
+
 global logger
 
 VERSION = 'v0.0.1'
@@ -26,6 +28,7 @@ os.environ['MDK_DEBUG']='1'
 
 sys.path.append(os.path.dirname(__file__)+'/../src')
 import mdklibs as mdk
+
 
 #=======================================#
 # Settings

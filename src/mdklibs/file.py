@@ -3,13 +3,13 @@
 * path管理用モジュール
 * ファイルパスは基本的にposix_pathで処理
 
-Version:
+Info:
     * Created : 2024-11-01 Tatsuya YAMAGISHI
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>
 
 
-Info:
+Release Note:
     * LastUpdated : 2024-11-08 Tatsuya Yamagishi
 """
 import csv

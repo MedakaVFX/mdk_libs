@@ -2,7 +2,7 @@
  
 * モジュールの読み込み用テストコード
 
-Version:
+Info:
     * Created : v0.0.1 2024-11-08 Tatsuya YAMAGISHI
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>

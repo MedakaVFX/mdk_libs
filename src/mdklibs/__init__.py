@@ -2,7 +2,7 @@
  
 * VFX用Pythonパッケージ
 
-Version:
+Info:
     * Created : v0.0.1 2024-11-01 Tatsuya YAMAGISHI
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>
@@ -26,10 +26,12 @@ if os.environ.get('MDK_DEBUG'):
 #=======================================#
 # Import Modules
 #=======================================#
+from . import data
 from . import file
 from . import path
 
 
+from .data import Data
 from .path import Path
 
 
