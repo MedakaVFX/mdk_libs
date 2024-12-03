@@ -30,6 +30,56 @@ import shutil
 #=======================================#
 # Funcsions
 #=======================================#
+def copy(src_filepath, dst_filepath, exists=False):
+    """
+ 
+        <src> を <dst> にコピーする
+ 
+        Args:
+            srt (str or pathlib.Path): コピー元
+            dst (str or pathlib.Path): コピー先
+            exists=False (bool): 上書き, exists=newer 新しかったら上書き
+
+         Raises:
+            Exception: khLibs.file.copy()のエラーで発生
+   
+        Examples: 
+            >>> mdklibs.file.copy( <src>, <dst>, extists=False )
+    """
+
+    if src_filepath is None:
+        raise FileNotFoundError()
+    
+    if dst_filepath is None:
+        raise FileNotFoundError()
+    
+
+    _src_filepath = pathlib.Path(src_filepath)
+    _dst_filepath = pathlib.Path(dst_filepath)
+
+    if _src_filepath.is_dir():
+        _dst_filepath.mkdir(parents=True, exist_ok=True)
+
+    elif not _dst_filepath.exists():
+        _dst_filepath.parent.mkdir(parents=True, exist_ok=True)
+
+        shutil.copy2(_src_filepath, _dst_filepath)
+    
+
+    elif exists == 'newer':
+        _src_stat = _src_filepath.stat()
+        _dst_stat = _dst_filepath.stat()
+
+        if _src_stat.st_mtime > _dst_stat.st_mtime:
+
+            shutil.copy2(_src_filepath, _dst_filepath)
+
+    elif exists == True:
+
+        shutil.copy2(_src_filepath, _dst_filepath)
+
+
+
 def delete(filepath):
     """ ファイルを削除 """
     if os.path.exists(filepath):
@@ -39,6 +89,46 @@ def delete(filepath):
     else:
         raise FileNotFoundError(f'File is not found.\nfilepath={filepath}')
     
+
+
+def replace_text(filepath: str, replace_list: list[str]):
+    """ 
+    
+    Args:
+        replcae_list(list): 置き換える文字リスト（['test', 'hoge'], ['moji', 'string']）
+    """
+    _lines = load_lines(filepath)
+
+    # pprint.pprint(_lines)
+
+    for _i, _line in enumerate(_lines):
+        for _replace in replace_list:
+            _src, _dst = _replace
+
+            if _src in _line:
+                _src_text = f'{_i}: {_line}'
+
+                try:
+                    _line = _line.replace(_src, _dst)
+
+                except Exception as ex:
+                    print(ex)
+
+                    print(f'MDK | line = {_line}')
+                    print(f'MDK | _src = {_src}')
+                    print(f'MDK | _dst = {_dst}')
+
+                    raise RuntimeError(ex)
+
+
+                _dst_text = f'{_line}'
+
+                print(f'{_src_text} => {_dst_text}')
+
+            _lines[_i] = _line
+
+    save_lines(filepath, _lines)
+
 
 #=======================================#
 # I/O
@@ -84,6 +174,7 @@ def load_csv(filepath) -> dict:
             _result.append(_value)
 
     return _result
+
 
 def save_csv(filepath, data: list[str]):
     """ CSVファイルを保存する """
@@ -135,36 +226,7 @@ def load_lines(filepath) -> list:
 
 def load_text(filepath):
     return pathlib.Path(filepath).read_text(encoding='utf8')
-
-
-
-def replace_text(filepath: str, replace_list: list[str]):
-    """ 
-    
-    Args:
-        replcae_list(list): 置き換える文字リスト（['test', 'hoge'], ['moji', 'string']）
-    """
-    _lines = load_lines(filepath)
-
-    # pprint.pprint(_lines)
-
-    for _i, _line in enumerate(_lines):
-        for _replace in replace_list:
-            _src, _dst = _replace
-
-            if _src in _line:
-                _src_text = f'{_i}: {_line}'
-                _line = _line.replace(_src, _dst)
-                _dst_text = f'{_line}'
-
-                print(f'{_src_text} => {_dst_text}')
-
-            _lines[_i] = _line
-
-    save_lines(filepath, _lines)
-
-    
-
+ 
 
 def save_json(json_file_path: str, dict_data: dict):
     """
