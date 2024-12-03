@@ -3,10 +3,12 @@
 VFX用Pythonライブラリ
 - Linux、Mac、Windowsクロスプラットフォーム
 
-## v0.0.1
+## v0.0.1 2024/12/03
 - added : 基本構造作成
-- added : mdklibs.file モジュール
-- added : mdklibs.path モジュール
+  - added : mdklibs.date モジュール
+  - added : mdklibs.file モジュール
+  - added : mdklibs.path モジュール
+  - added : mdklibs.qt モジュール
 
 
 ## Recommended 
