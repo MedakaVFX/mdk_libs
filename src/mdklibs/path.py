@@ -579,6 +579,12 @@ class Path:
             return []
         
 
+    def load_json(self):
+        _filepath = self.get_value()
+        
+        return mdk.file.load_json(_filepath)
+        
+
     def name(self):
         return name(self.get_value())
     
