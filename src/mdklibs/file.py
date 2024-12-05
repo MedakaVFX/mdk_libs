@@ -209,7 +209,18 @@ def load_json(json_file_path: str) -> dict:
 
         return result
 
+def save_json(json_file_path: str, dict_data: dict):
+    """
+    Jsonファイルの保存
 
+    Args:
+        json_file_path (str): 保存先
+        dict_data (dict): 保存するデータ
+    """
+    with open(json_file_path, 'w', encoding='UTF-8') as f:
+        json.dump( dict_data, f, indent=4, sort_keys=True, ensure_ascii=False)
+
+        
 #----------------------------
 # TEXT
 #----------------------------
@@ -227,17 +238,6 @@ def load_lines(filepath) -> list:
 def load_text(filepath):
     return pathlib.Path(filepath).read_text(encoding='utf8')
  
-
-def save_json(json_file_path: str, dict_data: dict):
-    """
-    Jsonファイルの保存
-
-    Args:
-        json_file_path (str): 保存先
-        dict_data (dict): 保存するデータ
-    """
-    with open(json_file_path, 'w', encoding='UTF-8') as f:
-        json.dump( dict_data, f, indent=4, sort_keys=True, ensure_ascii=False)
 
 
 def save_lines(filepath, lines: list[str]):

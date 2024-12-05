@@ -20,6 +20,7 @@ import logging
 import os
 import pathlib
 import platform
+import webbrowser
 
 
 if os.environ.get('MDK_DEBUG'):
@@ -36,6 +37,7 @@ from . import data
 from . import file
 from . import path
 from . import qt
+from . import time
 
 
 from .data import Data
@@ -157,6 +159,11 @@ def get_user_home_dir() -> str:
 
 def name() -> str:
     return NAME
+
+
+def open_web(self, url: str):
+    """ URLをWebBrowserで開く """
+    webbrowser.open(url, new=2)
 
 
 def version() -> str:
