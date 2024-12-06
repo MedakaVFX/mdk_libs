@@ -91,6 +91,18 @@ def delete(filepath):
     
 
 
+def move(src, dst):
+    """ ファイル移動 """
+    if os.path.isfile(src):
+        dst_dir = os.path.dirname(dst)
+
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+
+    shutil.move(src, dst)
+
+
+
 def replace_text(filepath: str, replace_list: list[str]):
     """ 
     
