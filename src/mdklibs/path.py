@@ -259,6 +259,18 @@ def open_in_explorer(filepath: str):
         raise FileNotFoundError(f'File is not found.')
 
 
+def split(filepath: str) -> tuple:
+    """ Split a file path into root, basename, and extension. 
+    
+    Examples:
+        >>> mdk.path.split(r'/mnt/users/yamagishi.txt')
+        >>> ('/mnt/users', 'yamagishi', 'txt')
+    """
+    _root, _filename = os.path.split(filepath)
+    _basename, _ext = os.path.splitext(_filename)
+
+    return _root, _basename, _ext
+
 
 def stem(filepath: str) -> str:
     return pathlib.Path(filepath).stem
