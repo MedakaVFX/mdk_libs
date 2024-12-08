@@ -93,6 +93,9 @@ _path.set_exprs(EXPRS)
 # 変数をセット
 _path.set_vars(VARS)
 
+# 変数をセット
+_path.set_var('ASSET', 'CreatureA')
+
 # エクスプレッションを評価
 _expr = r'_expr = r'{ROOT}/assets/{ASSET}/publish/{TASK}/%new_version%/{&asset_scene}_%new_version%{EXT}'
 _result = mdk.Path.eval(_expr, '.ma')
