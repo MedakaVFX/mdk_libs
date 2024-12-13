@@ -8,7 +8,7 @@ Info:
     * Author : MedakaVFX <medaka.vfx@gmail.com>
  
 Release Note:
-    * v0.0.1 2024-11-01 Tatsuya Yamagishi
+    * v0.0.1 2024-12-13 Tatsuya Yamagishi
         * added: path
 """
 VERSION = 'v0.0.1'

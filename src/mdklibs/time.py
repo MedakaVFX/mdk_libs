@@ -32,3 +32,17 @@ def get_cur_time() -> str:
     _result = _dt.strftime('%Y-%m-%d %H:%M:%S')
 
     return _result
+
+
+def get_today(separate='-') -> str:
+    """ 今日の日付を取得
+    Examples:
+        >>> tylibs.time.get_today(separate)
+        >>> 2022{separate}07{separate}18
+        >>> tylibs.time.get_today('-')
+        >>> 2022-07-18
+    """
+    dt = datetime.datetime.today()
+    result = dt.strftime(f'%Y{separate}%m{separate}%d')
+
+    return result

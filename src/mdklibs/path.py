@@ -9,7 +9,7 @@ Info:
     * Author : MedakaVFX <medaka.vfx@gmail.com>
 
 Release Note:
-    * LastUpdated : 2024-11-08 Tatsuya Yamagishi
+    * LastUpdated : 2024-12-13 Tatsuya Yamagishi
 """
 import datetime
 import glob
@@ -211,6 +211,54 @@ def get_versions(filepath) -> list:
 
 
 
+def mapping(path_substitutions: list[dict], filepath: str):
+    """ Filepath をマッピングする。
+
+    Examples:
+        >>> PATH_SUBSTITUTIONS = [
+        >>> {
+        >>>     'Darwin': '.zsh',
+        >>>     'Linux': '.sh',
+        >>>     'Windows': '.bat',
+        >>> },
+        >>> {
+        >>>     'Darwin': '/Volumes/KHAKI-SHARE',
+        >>>     'Linux': '/mnt/KHAKI-SHARE',
+        >>>     'Windows': 'X:',
+        >>> },
+    """
+    _platform = platform.system()
+
+    for _path_dict in path_substitutions:
+        _linux_path = _path_dict.get('Linux')
+        _mac_path = _path_dict.get('Darwin')
+        _windows_path = _path_dict.get('Windows')
+
+        if _platform == 'Darwin':
+                filepath = filepath.replace(_linux_path, _mac_path).replace(_windows_path, _mac_path)
+        elif _platform == 'Linux':
+            filepath = filepath.replace(_mac_path, _linux_path).replace(_windows_path, _linux_path)
+        elif _platform == 'Windows':
+            filepath = filepath.replace(_mac_path, _windows_path).replace(_linux_path, _windows_path)
+
+
+    return filepath
+
+
+
+
+def move(src, dst):
+    """ ファイル移動 """
+    if os.path.isfile(src):
+        dst_dir = os.path.dirname(dst)
+
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+
+    shutil.move(src, dst)
+
+    
+
 def name(filepath: str) -> str:
     return pathlib.Path(filepath).name
 
@@ -236,6 +284,12 @@ def open_dir(filepath) -> None:
         else:
             subprocess.Popen(["xdg-open", _filepath])
 
+
+
+def parent(filepath: str) -> str:
+    _path = Path(filepath)
+    
+    return _path.parent().get_value()
 
 
 def open_in_explorer(filepath: str):
@@ -485,8 +539,8 @@ class Path:
         _result = _cmd
 
         if _cmd.startswith('@'):
-            dirs = self._dirs.get(_cmd[1:])
-            _result = self.eval_expression(dirs)
+            _expr = self.get_expr(_cmd[1:])
+            _result = self.eval_expression(_expr)
 
         elif _cmd.startswith('&'):
             expr = self._exprs.get(_cmd[1:])
@@ -539,6 +593,19 @@ class Path:
     def exists(self) -> bool:
         """ ファイルが存在するかどうか？ """
         return os.path.exists(self.get_value())
+    
+
+    def get_expr(self, key):
+        return self._exprs[key]
+    
+
+    def get_path(self, key: str):
+        try:
+            return self.eval(self.get_expr(key))
+        except Exception as ex:
+            print(self._exprs)
+            raise KeyError(ex)
+    
     
 
     def get_var(self, key: str):
@@ -616,6 +683,20 @@ class Path:
     def parent(self) -> object:
         """ 親ディレクトリパスを返す """
         return Path(os.path.dirname(self.get_value()))
+    
+
+    def parse_string_to_dict(self, expr, value) -> dict:
+        # exprの {} を除去
+        _temp = re.sub(r'{|}', '', expr)
+        
+        # 辞書型のKEYとなるリストを作成
+        _key_list = _temp.split('_')
+        
+        # 辞書型のVALUEとなるリストを作成
+        _value_list = value.split('_')
+        
+        # ２つのリストから辞書を作成
+        return dict(zip(_key_list, _value_list))
 
 
     def replace_text(self, replace_list: list[str]):
