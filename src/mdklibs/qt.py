@@ -243,6 +243,88 @@ class ListWidget(QtWidgets.QListWidget):
 
 
 
+class Imagelabel(QtWidgets.QLabel):
+    """ イメージラベル """
+
+    def __init__(self, text='Image', parent=None):
+        super().__init__(parent)
+
+        # Private Variables
+        self._imagefile: str = None
+        self._height: int = 160
+        self._width: int = 90
+
+        self.setText(text)
+        self.setAlignment(QtCore.Qt.AlignCenter)
+        self.setAutoFillBackground(False)
+        self.setFrameShape(QtWidgets.QFrame.Box)
+        self.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.setLineWidth(3)
+
+    #---------------------------------#
+    # Get
+    #---------------------------------#
+    def get_height(self) -> int:
+        return self._height
+    
+    def get_width(self):
+        return self._width
+    
+    #---------------------------------#
+    # Set
+    #---------------------------------#       
+    def set_height(self, value: int):
+        self._height = int(value)
+
+
+    def set_imagefile(self, filepath: str):
+        self._imagefile = filepath
+
+        if (filepath is not None) and (os.path.exists(filepath)):
+            qimage = QtGui.QImage(filepath)
+            pixmap = QtGui.QPixmap(
+                qimage.scaledToWidth(self.get_width(), mode=QtCore.Qt.SmoothTransformation))
+            self.setPixmap(pixmap)
+
+
+    def set_line_width(self, value: int):
+        self.setLineWidth(value)
+
+
+    def set_size(self, width: int, height: int):
+        self.set_width(width)
+        self.set_height(height)
+
+        self.setFixedSize(width, height)
+        # self.setFixedSize(width+4, height+4)
+
+
+    def set_text(self, value: str):
+        self.setText(str(value))
+
+
+    def set_width(self, value: int):
+        self._width = int(value)
+
+
+
+
+
+
+
+
+
+class FixedHeightDelegate(QtWidgets.QStyledItemDelegate):
+    def __init__(self, height, parent=None):
+        super().__init__(parent)
+        self.fixed_height = height
+
+
+    def sizeHint(self, option, index):
+        size = super().sizeHint(option, index)
+        return QtCore.QSize(size.width(), self.fixed_height)
+
+
 class TreeWidget(QtWidgets.QTreeWidget):
     """Class Description
  
