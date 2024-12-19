@@ -221,6 +221,7 @@ def load_json(json_file_path: str) -> dict:
 
         return result
 
+
 def save_json(json_file_path: str, dict_data: dict):
     """
     Jsonファイルの保存
