@@ -104,7 +104,7 @@ class Splitter(QtWidgets.QSplitter):
 
 
     def print_sizes(self):
-        print(f'{self.objectName()} {self.sizes()}')
+        print(f'{self.objectName()}:{self.sizes()}')
 
 class HSplitter(Splitter):
     """ Vertical Splitter """
@@ -308,6 +308,54 @@ class Imagelabel(QtWidgets.QLabel):
 
 
 
+class ProgressDialog(QtWidgets.QProgressDialog):
+    def __init__(self, logger=None, parent=None):
+        # super().__init__(spp, parent)
+
+        super().__init__(parent)
+        self.logger = logger
+
+        self.total_steps = None
+        self.steps = 0
+        self.setMaximum(100)
+
+        self.setAutoClose(False)
+
+    # ----------------------------------
+    # Get
+    # ----------------------------------
+    @staticmethod
+    def get(title: str, view: QtWidgets.QWidget, total_steps: int, width=400, height=150, logger=None):
+        """
+        プログレスバーの取得
+        """
+        pbar = ProgressDialog(logger=logger, parent=view)
+        pbar.setWindowTitle(title)
+        pbar.set_total_steps(total_steps)
+        pbar.setFixedSize(width, height)
+        pbar.open()
+
+        QtWidgets.QApplication.processEvents()
+
+        return pbar
+    
+    # ----------------------------------
+    # Set
+    # ----------------------------------
+    def set_label(self, label):
+        self.setLabelText(f'[{self.steps+1}/{self.total_steps}]\n{label}')
+
+
+    def set_total_steps(self, value: int):
+        self.total_steps = value
+
+    # ----------------------------------
+    # Methods
+    # ----------------------------------
+    def add_steps(self, value: int):
+        self.steps += value
+
+        self.setValue((self.steps/self.total_steps)*100)
 
 
 
@@ -528,8 +576,11 @@ class TabWidget(QtWidgets.QTabWidget):
 
     def select(self, name: str):
         for _i in range(self.count()):
-            if self.tabText(_i).lower() == name.lower():
-                self.setCurrentIndex(_i)
+            try:
+                if self.tabText(_i).lower() == name.lower():
+                    self.setCurrentIndex(_i)
+            except:
+                pass
 
 
 #=======================================#
