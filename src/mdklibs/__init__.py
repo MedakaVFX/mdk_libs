@@ -8,7 +8,8 @@ Info:
     * Author : MedakaVFX <medaka.vfx@gmail.com>
  
 Release Note:
-    * v0.0.1 2024-12-13 Tatsuya Yamagishi
+    * v0.0.1 2024-12-19 Tatsuya Yamagishi
+        * added: fpt
         * added: path
 """
 VERSION = 'v0.0.1'
@@ -35,6 +36,7 @@ if os.environ.get('MDK_DEBUG'):
 #=======================================#
 from . import data
 from . import file
+from . import fpt
 from . import path
 from . import qt
 from . import time

@@ -12,8 +12,8 @@ Release Note:
     * LastUpdated : 2024-11-10 Tatsuya Yamagishi
 """
 
-import dataclasses
-import pprint
+import pathlib
+
 
 try:
     from PySide6 import QtCore, QtGui, QtWidgets
@@ -89,6 +89,21 @@ def get_vspacer():
     return _vspacer
 
 
+def file_overwrite_dialog(parent=None):
+    _result = QtWidgets.QMessageBox.information(
+        parent, # Parent
+        'Warning', # Title
+        'The file already exists. Do you want to overwrite it?', # Massage
+        QtWidgets.QMessageBox.Save | QtWidgets.QMessageBox.Discard | QtWidgets.QMessageBox.Cancel, # Button
+        QtWidgets.QMessageBox.Save # Default
+    )
+
+    if _result == QtWidgets.QMessageBox.StandardButton.Save:
+        return True
+    elif _result == QtWidgets.QMessageBox.StandardButton.Discard:
+        return False
+    elif _result == QtWidgets.QMessageBox.StandardButton.Cancel:
+        return False
 
 #=======================================#
 # Class
@@ -308,6 +323,9 @@ class Imagelabel(QtWidgets.QLabel):
 
 
 
+
+
+
 class ProgressDialog(QtWidgets.QProgressDialog):
     def __init__(self, logger=None, parent=None):
         # super().__init__(spp, parent)
@@ -319,6 +337,7 @@ class ProgressDialog(QtWidgets.QProgressDialog):
         self.steps = 0
         self.setMaximum(100)
 
+        self.setAutoReset(False)
         self.setAutoClose(False)
 
     # ----------------------------------
@@ -357,6 +376,94 @@ class ProgressDialog(QtWidgets.QProgressDialog):
 
         self.setValue((self.steps/self.total_steps)*100)
 
+
+
+class SnapShot(QtWidgets.QWidget):
+    def __init__(self, filepath, app_name:str=None, size: tuple=None, parent=None):
+        super().__init__(parent)
+
+        self.path: pathlib.Path = pathlib.Path(filepath)
+        self.path.parent.mkdir(parents=True, exist_ok=True)    
+        self.image_size: tuple = size
+        screen = QtWidgets.QApplication.primaryScreen()
+
+        if app_name == 'nuke':
+            # PySide2 対応
+            self.originalPixmap = QtGui.QPixmap.grabWindow(
+                        QtWidgets.QApplication.desktop().winId())
+        else:
+            # self.originalPixmap = screen.grabWindow(QtWidgets.QApplication.desktop().winId())
+            self.originalPixmap = screen.grabWindow(0)
+
+            
+        self.endpos = None
+        self.stpos = None
+
+    # ----------------------------------
+    # Get / Set
+    # ----------------------------------
+    def get_path(self):
+        return self.path.as_posix()
+
+
+    def get_image_size(self):
+        return self.image_size
+
+    # ----------------------------------
+    # Methods
+    # ----------------------------------
+    def paintEvent(self, event):
+        painter = QtGui.QPainter()
+        painter.begin(self)
+        painter.setPen(QtCore.Qt.NoPen)
+
+        # rectSize = QtWidgets.QApplication.desktop().screenGeometry()
+        rectSize = QtWidgets.QApplication.primaryScreen().geometry()
+        painter.drawPixmap(rectSize, self.originalPixmap)
+
+        if self.endpos and self.stpos:
+
+            painter_path = QtGui.QPainterPath()
+            painter_path.addRect(rectSize)
+            try:
+                painter_path.addRoundRect(QtCore.QRect(self.stpos, self.endpos), 0, 0)
+            except:
+                painter_path.addRoundedRect(QtCore.QRect(self.stpos, self.endpos), 0, 0)
+
+            painter.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 100, 100)))
+            painter.drawPath(painter_path)
+
+        painter.end()
+
+
+    def mouseMoveEvent(self, event):
+        self.endpos = event.pos()
+        self.repaint()
+
+
+    def mousePressEvent(self, event):
+        self.stpos = event.pos()
+
+
+    def mouseReleaseEvent(self, event):
+        self.endpos = event.pos()
+        self.screenShot()
+
+
+    def screenShot(self):
+        filepath = self.get_path()
+        size = self.get_image_size()
+
+
+        pixmap = self.originalPixmap.copy(QtCore.QRect(self.stpos, self.endpos))
+        # if size:
+        #     pixmap = pixmap.scaled(size[0], size[1], QtCore.Qt.KeepAspectRatio) 
+        
+        pixmap.save(filepath)
+        print('snapshot = {}'.format(filepath))
+        
+
+        self.close()
 
 
 
