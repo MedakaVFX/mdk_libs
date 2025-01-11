@@ -100,7 +100,12 @@ class Data:
     #----------------------------------
     def save(self, json_filepath:str):
         _value = self.get_dict()
-        mdk.file.save_json(json_filepath, _value)
+        try:
+            mdk.file.save_json(json_filepath, _value)
+        except Exception as e:
+            print(f'json_filepath = {json_filepath}')
+            print(f'value = \n{_value}')
+            raise e
 
         
     def load(self, json_filepath) -> dict:

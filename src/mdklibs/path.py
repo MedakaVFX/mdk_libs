@@ -9,7 +9,7 @@ Info:
     * Author : MedakaVFX <medaka.vfx@gmail.com>
 
 Release Note:
-    * LastUpdated : 2024-12-13 Tatsuya Yamagishi
+    * LastUpdated : 2024-12-31 Tatsuya Yamagishi
 """
 import datetime
 import glob
@@ -203,11 +203,12 @@ def get_versions(filepath) -> list:
         * バージョンは `._/` で区切られ、小文字の `v` から始まる数字の連続
 
     """
-    _path = as_posix(filepath)
-    _items = re.split(r'[._/]+', _path)
-    _result = [_item for _item in _items if re.match(r'(v\d+)', _item)]
+    if type(filepath) == str:
+        _path = as_posix(filepath)
+        _items = re.split(r'[._/]+', _path)
+        _result = [_item for _item in _items if re.match(r'(v\d+)', _item)]
 
-    return _result
+        return _result
 
 
 
@@ -245,6 +246,11 @@ def mapping(path_substitutions: list[dict], filepath: str):
     return filepath
 
 
+def mkdir(filepath: str, parents: bool = True, exists_ok: bool = True):
+    pathlib.Path(filepath).mkdir(
+            exist_ok=exists_ok,
+            parents=parents,
+    )
 
 
 def move(src, dst):
@@ -446,6 +452,7 @@ class Path:
         else:
             raise TypeError(f'"filepath" is not directory.')
 
+
         
 
     def delete(self):
@@ -599,11 +606,16 @@ class Path:
         return self._exprs[key]
     
 
+    def get_exprs(self) -> dict:
+        return self._exprs
+    
+
     def get_path(self, key: str):
         try:
             return self.eval(self.get_expr(key))
+        
         except Exception as ex:
-            print(self._exprs)
+            print(key, self._exprs)
             raise KeyError(ex)
     
     
@@ -619,6 +631,11 @@ class Path:
         return self._value
     
 
+    def get_vars(self) -> dict:
+        """ 変数を返す """
+        return self._vars
+    
+
     def get_version_digits(self) -> int:
         return self._version_digits
     
@@ -631,6 +648,12 @@ class Path:
     def is_dir(self) -> bool:
         """ ディレクトリ判定 """
         return os.path.isdir(self.get_value())
+    
+
+    def join(self, value: str) -> str:
+        self.set_value(f'{self.get_value()}/{value}')
+
+        return self
 
 
     def listdir(self, ext=None, is_file=False, is_dir=False) -> list:
@@ -662,6 +685,7 @@ class Path:
         _filepath = self.get_value()
         
         return mdk.file.load_json(_filepath)
+    
         
 
     def name(self):
@@ -669,6 +693,11 @@ class Path:
     
 
     def new_version(self, path):
+        """ 新規バージョンパスを取得
+        
+        Args:
+            path(str): 置き換える前のパス
+        """
         _version_digits = self.get_version_digits()
         _version = 'v'+str(0).zfill(_version_digits)
         _path = path.replace(r'%new_version%', _version)
@@ -725,7 +754,10 @@ class Path:
 
     def set_var(self, key: str, value):
         """ 変数名で変数をセット """
-        self._vars[key] = value
+        if type(key) == str:
+            self._vars[key] = value
+        else:
+            raise TypeError('Type is not str.')
 
     def set_vars(self, values: dict):
         """ 変数をセット """
