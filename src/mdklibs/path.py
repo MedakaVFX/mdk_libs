@@ -153,6 +153,13 @@ def get_new_version_path(filepath, up_num=1) -> str:
     return result
 
 
+def get_version(filepath):
+    versions = get_versions(filepath)
+
+    if versions:
+        return versions[-1]
+    
+    
 
 def get_version_num(filepath):
     """
@@ -651,9 +658,7 @@ class Path:
     
 
     def join(self, value: str) -> str:
-        self.set_value(f'{self.get_value()}/{value}')
-
-        return self
+        return Path(f'{self.get_value()}/{value}')
 
 
     def listdir(self, ext=None, is_file=False, is_dir=False) -> list:
@@ -747,7 +752,10 @@ class Path:
 
 
     def set_value(self, value: str) -> str:
-        self._value = as_posix(value)
+        if value is None:
+            self._value = value
+        else:
+            self._value = as_posix(str(value))
 
         return self.get_value()
     

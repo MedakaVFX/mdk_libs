@@ -9,7 +9,8 @@ Info:
 
 
 Release Note:
-    * LastUpdated : 2025-01-01 Tatsuya Yamagishi
+    * LastUpdated : 2025-01-20 Tatsuya Yamagishi
+        * added : get_asset
         * added : add_filter
 """
 import datetime
@@ -182,7 +183,24 @@ class Fpt:
             fpt_dict['created_by'] = self._user
 
         return self._fpt.create('Playlist', fpt_dict)
-    
+
+
+    def create_timelog(self, fpt_dict: dict):
+        """ タイムログを作成
+        
+        fpt_dict = {
+            'entity': sg_task,
+            'user': {'type': 'HumanUser', 'id': int(user_id)},
+            'date': 2024-05-28,
+            'duration': float(value)*60, # HtoM
+            'description': description,
+        }
+        """
+
+        fpt_dict['project'] = self._project
+
+        return self._fpt.create('TimeLog', fpt_dict)
+        
 
     def create_version(self, fpt_dict: dict):
         """ Versionを作成
@@ -220,13 +238,22 @@ class Fpt:
         return _fpt_version
     
 
-    def open_in_web(self, entity: dict):
+    def get_url_by_entity(self, entity: dict):
         _sg_url = self.get_url()
         _id = entity['id']
         _type = entity['type']
 
-        _url = f'{_sg_url}detail/{_type}/{_id}'
+        return f'{_sg_url}detail/{_type}/{_id}'
+    
 
+    def open_in_web(self, entity: dict):
+        # _sg_url = self.get_url()
+        # _id = entity['id']
+        # _type = entity['type']
+
+        # _url = f'{_sg_url}detail/{_type}/{_id}'
+
+        _url = self.get_url_by_entity(entity)
         webbrowser.open(_url, new=2)
 
 
@@ -318,6 +345,7 @@ class Fpt:
         # )
         filters = self.add_filter(filters, 'is_demo', 'is', False)
         filters = self.add_filter(filters, 'is_template', 'is', False)
+        filters = self.add_filter(filters, 'sg_status', 'is', 'Active')
 
         if mytask:
             filters = self.add_filter(
@@ -465,6 +493,19 @@ class Fpt:
 
         return self._fpt.find('Version', filters, fields)
     
+
+    def get_asset(self, code: str, filters=None, fields=None, mytask=False):
+        """ Asset をコードで取得
+        
+
+        """
+        filters = self.add_filter(filters, 'project', 'is', self._project)
+        filters = self.add_filter(filters, 'code', 'is', code)
+
+        if fields is None:
+            fields = []
+
+        return self._fpt.find_one('Asset', filters, fields)
 
     def get_asset_type_list(self):
         """ アセットタイプリストを取得 """

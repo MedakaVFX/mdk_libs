@@ -105,6 +105,37 @@ def file_overwrite_dialog(parent=None):
     elif _result == QtWidgets.QMessageBox.StandardButton.Cancel:
         return False
 
+
+def input_dialog(title, label, text='', parent=None ):    
+    _result = QtWidgets.QInputDialog.getText(
+                    parent, title, label, text=text)
+
+    return _result
+
+
+
+def warning_dialog(text, darkcolor=True, parent=None):
+    _app = get_application(darkcolor=darkcolor)
+    
+    _result = QtWidgets.QMessageBox.information(
+                    parent, 'Warning', text, )
+
+    return _result
+
+
+def file_already_waning_dialog(darkcolor=True, parent=None):
+    _message = 'FIle is already exists.'
+    return warning_dialog(
+        _message,
+        darkcolor=darkcolor,
+        parent=parent
+    )
+
+
+def set_clipoboard_str(value: str):
+    _qb = QtGui.QClipboard()
+    _qb.setText(str(value))
+
 #=======================================#
 # Class
 #=======================================#
@@ -120,6 +151,8 @@ class Splitter(QtWidgets.QSplitter):
 
     def print_sizes(self):
         print(f'{self.objectName()}:{self.sizes()}')
+        set_clipoboard_str(self.sizes())
+    
 
 class HSplitter(Splitter):
     """ Vertical Splitter """
@@ -146,6 +179,7 @@ class ComboBox(QtWidgets.QComboBox):
     """
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
+
     # ----------------------------------
     # Methods
     # ----------------------------------
@@ -156,6 +190,10 @@ class ComboBox(QtWidgets.QComboBox):
             num = 0
             
         self.setCurrentIndex(num)
+
+
+    def set_font(self, font: QtGui.QFont):
+        self.setFont(font)
 
 
 class ListWidget(QtWidgets.QListWidget):
