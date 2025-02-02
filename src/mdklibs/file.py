@@ -91,6 +91,17 @@ def delete(filepath):
     
 
 
+def download_url_imagefile(url, dst_path):
+    try:
+        with urllib.request.urlopen(url) as web_file:
+            data = web_file.read()
+            with open(dst_path, mode='wb') as local_file:
+                local_file.write(data)
+                
+    except urllib.error.URLError as ex:
+        raise urllib.error.URLError(ex)
+    
+    
 def move(src, dst):
     """ ファイル移動 """
     if os.path.isfile(src):

@@ -9,10 +9,11 @@ Info:
 
 
 Release Note:
-    * LastUpdated : 2024-11-10 Tatsuya Yamagishi
+    * LastUpdated : 2025-01-24 Tatsuya Yamagishi
 """
-
+import os
 import pathlib
+import re
 
 
 try:
@@ -196,6 +197,9 @@ class ComboBox(QtWidgets.QComboBox):
         self.setFont(font)
 
 
+
+
+
 class ListWidget(QtWidgets.QListWidget):
     """ TyListWidget 基底クラス 
     
@@ -241,6 +245,11 @@ class ListWidget(QtWidgets.QListWidget):
     # Methods
     # ----------------------------------
     def add_items(self, items: list[str]):
+        self.clear()
+        self.addItems(items)
+    
+    
+    def append_items(self, items: list[str]):
         _name_list = self.get_name_list()
         _name_list.extend(items)
 
@@ -290,6 +299,112 @@ class ListWidget(QtWidgets.QListWidget):
         # print(item_name)
         # raise RuntimeError(item_name)
 
+        _items = (self.findItems(item_name, QtCore.Qt.MatchContains))           
+        if _items:
+            self.setCurrentItem(_items[0])
+
+
+
+
+class FileListWidgetItem(QtWidgets.QListWidgetItem):
+    """ ファイルリストアイテム """
+    def __init__(self, filepath: str, parent=None):
+        super().__init__(parent)
+
+        self._value = None
+
+        self.set_value(filepath)
+
+    #---------------------------------#
+    # Get
+    #---------------------------------#
+    def get_value(self):
+        return self._filepath
+
+    #---------------------------------#
+    # Set
+    #---------------------------------#
+    def set_value(self, value: str):
+        self._filepath = value
+
+        if value:
+            self.setText(os.path.basename(value))
+
+
+
+class FileListWidget(ListWidget):
+    """ ファイルリストウィジェット """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setSortingEnabled(True)
+
+    #---------------------------------#
+    # Methods
+    #---------------------------------#
+    def add_items(self, items: list[str]):
+        """
+        Args:
+            items (list[str]): ファイルパスリスト
+        """
+        self.clear()
+        
+        for _item in items:
+            _new_item = FileListWidgetItem(_item)
+            self.addItem(_new_item)
+
+
+    def enable_file_drag_and_drop(self):
+        self.setAcceptDrops(True)
+
+
+    def dragEnterEvent(self, event):
+        """ ドラッグされたオブジェクトがファイルなら許可する """
+        mime = event.mimeData()
+
+        if mime.hasUrls() == True:
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent( self, event ):
+        mimedata = event.mimeData()
+
+        if mimedata.hasUrls():
+            urllist = mimedata.urls()
+            files = [re.sub('^/', '', url.path()) for url in urllist]			
+            self.add_items(files)
+
+   
+    def dragMoveEvent(self, event):
+        """ ドロップアクション設定 """
+        if event.mimeData().hasUrls:
+            event.setDropAction(QtCore.Qt.CopyAction)
+            event.accept()
+        else:
+            event.ignore()
+
+
+    def get_all_filepath_list(self) -> list[str]:
+        return [item.get_filepath() for item in self.get_all_items()]
+
+
+    def get_selected_filepath_list(self) -> list[str]:
+        return [item.get_filepath() for item in self.selectedItems()]
+
+
+    def remove_selected(self):
+        _items = self.selectedItems()
+
+        if _items is None:
+            return
+        
+        for _item in _items:
+            self.takeItem(self.row(_item))
+
+
+    def select(self, item_name):
+        """ Select item by name. """
         _items = (self.findItems(item_name, QtCore.Qt.MatchContains))           
         if _items:
             self.setCurrentItem(_items[0])
