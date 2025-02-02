@@ -382,6 +382,7 @@ class Fpt:
         
         """
         filters = self.add_filter(filters, 'project', 'is', self._project)
+        
         if mytask:
             filters = self.add_filter(
                     filters, 'shots.Shot.tasks.Task.task_assignees', 'is', self._user)

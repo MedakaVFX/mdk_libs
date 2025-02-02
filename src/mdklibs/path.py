@@ -16,6 +16,7 @@ import glob
 import os
 import pathlib
 import platform
+import pprint
 import re
 import subprocess
 import shutil
@@ -457,6 +458,7 @@ class Path:
                 raise ValueError(f'dirname = {dirname}')
             
         else:
+            print(f'filepath={self.get_value()}')
             raise TypeError(f'"filepath" is not directory.')
 
 
@@ -526,7 +528,13 @@ class Path:
         
 
         for _cmd in _cmds:
-            _result = self.eval_command(_cmd, *args[1:])
+            try:
+                _result = self.eval_command(_cmd, *args[1:])
+            except Exception as ex:
+                print(f'cmd = {_cmd}')
+                print(f'args = {args}')
+
+                raise RuntimeError(ex)
 
             _src = '{'+_cmd+'}'
             _dst = str(_result)
@@ -617,12 +625,17 @@ class Path:
         return self._exprs
     
 
-    def get_path(self, key: str):
+    def get_path(self, key: str, *args):
+        _expr = self.get_expr(key)
         try:
-            return self.eval(self.get_expr(key))
+            return self.eval(_expr, *args)
         
         except Exception as ex:
-            print(key, self._exprs)
+            print(f'key=  "{key}"')
+            print(f'expr = "{_expr}"')
+            print('vars =')
+            pprint.pprint(self._vars)
+            print(self._exprs)
             raise KeyError(ex)
     
     
@@ -692,6 +705,10 @@ class Path:
         return mdk.file.load_json(_filepath)
     
         
+    def mkdir(self, parents=True, exists_ok=True):
+        """ ディレクトリ作成 """
+        mkdir(self.get_value(), parents=parents, exists_ok=exists_ok)
+
 
     def name(self):
         return name(self.get_value())
