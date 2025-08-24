@@ -9,19 +9,22 @@ Info:
 
 
 Release Note:
-    * LastUpdated : 2025-01-24 Tatsuya Yamagishi
+    * LastUpdated : 2025-08-24 Tatsuya Yamagishi
 """
 import os
 import pathlib
 import re
+import sys
 
 
 try:
     from PySide6 import QtCore, QtGui, QtWidgets
 except:
     from qtpy import QtCore, QtGui, QtWidgets
+import qdarktheme
 
-import mdklibs as mdk
+
+import mdk_libs as mdk
 #=======================================#
 # Settings
 #=======================================#
@@ -46,6 +49,23 @@ def create_menu(view, menu_name):
 
             return _menu
         
+def get_application(darkcolor=True) -> QtWidgets.QApplication:
+    """
+    QApplication の取得
+    """
+    _app = QtWidgets.QApplication.instance()
+
+    if _app is None:
+        _app = QtWidgets.QApplication(sys.argv)
+
+        if darkcolor:
+            qdarktheme.setup_theme()
+
+        return _app
+    
+    else:
+        return None
+    
 
 def get_hspacer():
     _hspacer = QtWidgets.QSpacerItem(

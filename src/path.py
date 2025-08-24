@@ -9,7 +9,7 @@ Info:
     * Author : MedakaVFX <medaka.vfx@gmail.com>
 
 Release Note:
-    * LastUpdated : 2024-12-31 Tatsuya Yamagishi
+    * LastUpdated : 2025-08-24 Tatsuya Yamagishi
 """
 import datetime
 import glob
@@ -22,7 +22,7 @@ import subprocess
 import shutil
 
 
-import mdklibs as mdk
+import mdk_libs as mdk
 
 #=======================================#
 # Settings
@@ -33,7 +33,7 @@ FILE_FILTER_IMAGE_SDR = re.compile(r'.+\.(bmp|gif|png|jpeg|jpg|svg|tif|tiff)')
 # FILE_FILTER_IMAGE = re.compile(r'.+\.(bmp|gif|png|jpeg|jpg|svg|tif|tiff)')
 FILE_FILTER_MAYA = re.compile(r'.+\.(ma|mb)')
 FILE_FILTER_MEDIA = re.compile(r'.+\.(bmp|png|jpeg|jpg|svg|tif|tiff|exr|mp4|mp3|pdf|mov|mkv)')
-FILE_FILTER_RAW = re.compile(r'.+\.(cr2|cr3|dng|CR2|CR3|DNG)')
+FILE_FILTER_RAW = re.compile(r'.+\.(cr2|cr3|dng|cr2|cr3|dng|arw)')
 FILE_FILTER_TEXT = re.compile(r'.+\.(doc|txt|text|json|py|usda|nk|sh|zsh|bat|md)')
 
 

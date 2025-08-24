@@ -17,10 +17,13 @@ import datetime
 import functools
 import webbrowser
 
-import shotgun_api3
+try:
+    import shotgun_api3
+except:
+    pass
 
 
-import mdklibs as mdk
+import mdk_libs as mdk
 
 #=======================================#
 # Settings
