@@ -16,7 +16,7 @@ import dataclasses
 import pprint
 
 
-import mdklibs as mdk
+import mdk_libs as mdk
 #=======================================#
 # Settings
 #=======================================#

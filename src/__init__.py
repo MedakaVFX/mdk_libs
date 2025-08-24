@@ -163,7 +163,7 @@ def name() -> str:
     return NAME
 
 
-def open_web(self, url: str):
+def open_web(url: str):
     """ URLをWebBrowserで開く """
     webbrowser.open(url, new=2)
 
