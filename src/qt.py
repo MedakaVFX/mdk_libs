@@ -11,6 +11,7 @@ Info:
 Release Note:
     * LastUpdated : 2025-08-24 Tatsuya Yamagishi
 """
+import functools
 import os
 import pathlib
 import re
@@ -33,6 +34,35 @@ import mdk_libs as mdk
 #=======================================#
 # Funcsions
 #=======================================#
+def app_decorator(func):
+    """ アプリケーションのイベントループを開始するデコレータ 
+    
+    Example:
+        >>> @snb_libs.qt.app_decorator
+        >>> def project_combobox_widget(snb):
+        >>>     _widget = snb_libs.qt.SnbProjectComboBoxWidget(snb)
+        >>>     _widget.setWindowTitle('ProjectComboBoxWidget')
+        >>>     return _widget
+        >>>
+        >>> # 使用例
+        >>> snb = shinobi.Core(app_name='standalone', debug=True)
+        >>> project_combobox_widget(snb)
+
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        app = get_application()
+        widget = func(*args, **kwargs)  # 関数内でウィジェット作成
+        widget.show()
+
+        if app is not None:
+            app.exec()  # アプリケーションのイベントループを開始
+
+        return widget
+
+    return wrapper
+
+
 def create_menu(view, menu_name):
     _main_menu = view.menuBar()
 
