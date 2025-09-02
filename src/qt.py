@@ -26,10 +26,11 @@ import qdarktheme
 
 
 import mdk_libs as mdk
+
 #=======================================#
 # Settings
 #=======================================#
-
+DEFAULT_FONT = QtGui.QFont('Courier New', 8)
 
 #=======================================#
 # Funcsions
@@ -155,6 +156,12 @@ def file_overwrite_dialog(parent=None):
         return False
     elif _result == QtWidgets.QMessageBox.StandardButton.Cancel:
         return False
+
+
+def init_splitter_print_signal(splitter: QtWidgets.QSplitter):
+    """ Splitterのサイズ変更をコンソールに出力する """
+    splitter.splitterMoved.connect(lambda pos, index: print(f'{splitter.objectName()} : {splitter.sizes()}'))
+
 
 
 def input_dialog(title, label, text='', parent=None ):    
