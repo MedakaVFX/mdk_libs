@@ -108,14 +108,16 @@ def get_user_document_dir() -> str:
     """ ユーザーのホームドキュメントディレクトリパス取得
     
     """
-    user_dir = get_user_home_dir()
+    _user_dir = get_user_home_dir()
 
-    if platform.system == 'Darwin':
+    if platform.system() == 'Darwin':
         raise RuntimeError('Unimplemented')
-    elif platform.system == 'Linux':
+    elif platform.system() == 'Linux':
         raise RuntimeError('Unimplemented')
-    elif platform.system == 'Windows':
-        return f'{user_dir}/Documents'
+    elif platform.system() == 'Windows':
+        return f'{_user_dir}/Documents'
+    
+    
     
 
 def get_user_home_dir() -> str:

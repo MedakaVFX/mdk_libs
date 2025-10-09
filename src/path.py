@@ -22,6 +22,7 @@ import subprocess
 import shutil
 
 
+import mdk_apps 
 import mdk_libs as mdk
 
 #=======================================#
@@ -224,32 +225,24 @@ def mapping(path_substitutions: list[dict], filepath: str):
     """ Filepath をマッピングする。
 
     Examples:
-        >>> PATH_SUBSTITUTIONS = [
-        >>> {
-        >>>     'Darwin': '.zsh',
-        >>>     'Linux': '.sh',
-        >>>     'Windows': '.bat',
-        >>> },
-        >>> {
-        >>>     'Darwin': '/Volumes/KHAKI-SHARE',
-        >>>     'Linux': '/mnt/KHAKI-SHARE',
-        >>>     'Windows': 'X:',
-        >>> },
+    >>> PATH_SUBSTITUTIONS = [
+    ...     {'Darwin': '.zsh', 'Linux': '.sh', 'Windows': '.bat'},
+    ...     {'Darwin': '/Volumes/MDK-SHARE', 'Linux': '/mnt/MDK-SHARE', 'Windows': 'X:'},
+    ... ]
+    >>> mapping(PATH_SUBSTITUTIONS, '/mnt/MDK-SHARE/file.sh')
+    'X:/file.bat'
     """
-    _platform = platform.system()
+    current = platform.system()
+    if current not in ('Darwin', 'Linux', 'Windows'):
+        raise NotImplementedError(f"Unsupported platform: {current}")
 
-    for _path_dict in path_substitutions:
-        _linux_path = _path_dict.get('Linux')
-        _mac_path = _path_dict.get('Darwin')
-        _windows_path = _path_dict.get('Windows')
-
-        if _platform == 'Darwin':
-                filepath = filepath.replace(_linux_path, _mac_path).replace(_windows_path, _mac_path)
-        elif _platform == 'Linux':
-            filepath = filepath.replace(_mac_path, _linux_path).replace(_windows_path, _linux_path)
-        elif _platform == 'Windows':
-            filepath = filepath.replace(_mac_path, _windows_path).replace(_linux_path, _windows_path)
-
+    for mapping_dict in path_substitutions:
+        target = mapping_dict.get(current)
+        if not target:
+            continue
+        for os_name, os_path in mapping_dict.items():
+            if os_name != current and os_path:
+                filepath = filepath.replace(os_path, target)
 
     return filepath
 
@@ -290,7 +283,7 @@ def open_dir(filepath) -> None:
 
         if OS_NAME == 'Windows':
             cmd = 'explorer {}'.format(str(_filepath))
-            subprocess.Popen(cmd)
+            subprocess.run(cmd)
 
         elif OS_NAME == 'Darwin':
             subprocess.Popen(['open', _filepath])
@@ -616,9 +609,14 @@ class Path:
         """ ファイルが存在するかどうか？ """
         return os.path.exists(self.get_value())
     
+    def get_app_ext(self, *args):
+        return mdk_apps.get_ext()
 
     def get_expr(self, key):
-        return self._exprs[key]
+        try:
+            return self._exprs[key]
+        except Exception as ex:
+            raise KeyError(f'Key is not found. : {key}') from ex
     
 
     def get_exprs(self) -> dict:
@@ -627,6 +625,7 @@ class Path:
 
     def get_path(self, key: str, *args):
         _expr = self.get_expr(key)
+
         try:
             return self.eval(_expr, *args)
         
@@ -725,10 +724,34 @@ class Path:
         _path = path.replace(r'%new_version%', _version)
 
         return get_new_version_path(_path)
+    
+
+    def cur_version(self, path):
+        """ 新規バージョンパスを取得
+        
+        Args:
+            path(str): 置き換える前のパス
+        """
+        _version_digits = self.get_version_digits()
+        _version = 'v'+str(0).zfill(_version_digits)
+        _path = path.replace(r'%cur_version%', _version)
+
+        return get_current_version_path(_path)
         
 
     def open_dir(self) -> None:
         open_dir(self.get_value())
+
+
+    def open_path(self, value):
+        _path = self.get_path(value)
+        if os.path.exists(_path):
+            if os.path.isdir(_path):
+                open_dir(_path)
+            else:
+                open_in_explorer(_path)
+        else:
+            raise FileNotFoundError(f'File is not found. : {_path}')
 
 
     def parent(self) -> object:
@@ -758,6 +781,14 @@ class Path:
         """ 相対パスを返す """
         return Path(os.path.relpath(self.get_value(), str(filepath)))
     
+    def save_json(self, value: dict):
+        """ JSONを保存
+        Args:
+            value(dict): 保存するデータ
+    
+        """
+        
+        return mdk.file.save_json(self.get_value(), value)
 
     def set_exprs(self, values: dict):
         """ エクスプレションをセット """
@@ -769,6 +800,12 @@ class Path:
 
 
     def set_value(self, value: str) -> str:
+        """ パスを設定 
+        
+        Args:
+            value(str): 設定するパス
+        """
+        
         if value is None:
             self._value = value
         else:

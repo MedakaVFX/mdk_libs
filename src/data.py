@@ -98,10 +98,10 @@ class Data:
     #----------------------------------
     # Save / Load
     #----------------------------------
-    def save(self, json_filepath:str):
-        _value = self.get_dict()
+    def save(self, json_filepath:str, mkdir=False):
+        _value = self.get_dict()        
         try:
-            mdk.file.save_json(json_filepath, _value)
+            mdk.file.save_json(json_filepath, _value, mkdir=mkdir)
         except Exception as e:
             print(f'json_filepath = {json_filepath}')
             print(f'value = \n{_value}')
