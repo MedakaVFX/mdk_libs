@@ -20,6 +20,7 @@ import pathlib
 import platform
 import subprocess
 import shutil
+import webbrowser
 
 
 #=======================================#
@@ -174,9 +175,19 @@ def open_file(filepath):
         raise TypeError('"filepath" is not file.')
     
 
-#----------------------------
-# CSV
-#----------------------------
+def open_in_webbrowser(value: str):
+    """ ウェブブラウザで開く
+
+    Args:
+        value (str): URL
+
+    """
+    if not value:
+        raise ValueError('URL is empty.')
+
+    webbrowser.open(value, new=2)
+
+
 def load_csv(filepath) -> dict:
     """ CSVファイルを開く """
     _result = []
@@ -233,7 +244,7 @@ def load_json(json_file_path: str) -> dict:
         return result
 
 
-def save_json(json_file_path: str, dict_data: dict):
+def save_json(json_file_path: str, dict_data: dict, mkdir=False):
     """
     Jsonファイルの保存
 
@@ -241,6 +252,9 @@ def save_json(json_file_path: str, dict_data: dict):
         json_file_path (str): 保存先
         dict_data (dict): 保存するデータ
     """
+    if mkdir is True:
+        pathlib.Path(json_file_path).parent.mkdir(parents=True, exist_ok=True)
+
     with open(json_file_path, 'w', encoding='UTF-8') as f:
         json.dump( dict_data, f, indent=4, sort_keys=True, ensure_ascii=False)
 

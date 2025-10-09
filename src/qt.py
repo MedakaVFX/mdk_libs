@@ -7,30 +7,34 @@ Info:
     * Coding : Python 3.12.4 & PySide6
     * Author : MedakaVFX <medaka.vfx@gmail.com>
 
-
-Release Note:
-    * LastUpdated : 2025-08-24 Tatsuya Yamagishi
+LastUpdated : 2025-09-25 Tatsuya Yamagishi
 """
+import datetime
 import functools
 import os
 import pathlib
 import re
 import sys
+import webbrowser
 
 
 try:
     from PySide6 import QtCore, QtGui, QtWidgets
 except:
     from qtpy import QtCore, QtGui, QtWidgets
+
 import qdarktheme
 
+import mdk_libs
+import mdk_libs.path
 
-import mdk_libs as mdk
 
 #=======================================#
 # Settings
 #=======================================#
-DEFAULT_FONT = QtGui.QFont('Courier New', 8)
+BOLD_FONT = QtGui.QFont('BankGothic Md BT', 15)
+DEFAULT_FONT = QtGui.QFont('Courier New', 9)
+LARGE_FONT = QtGui.QFont('Arial Black', 11)
 
 #=======================================#
 # Funcsions
@@ -79,7 +83,8 @@ def create_menu(view, menu_name):
             _main_menu.addAction(_menu.menuAction())
 
             return _menu
-        
+
+
 def get_application(darkcolor=True) -> QtWidgets.QApplication:
     """
     QApplication の取得
@@ -106,6 +111,25 @@ def get_hspacer():
     )
     
     return _hspacer
+
+
+def get_icon_filepath(icon_type: str, name: str) -> str:
+    """ アイコンのファイルパスを取得
+
+    Args:
+        icon_type (str): アイコンのタイプ (app, tool, action)
+        name (str): アイコンの名前
+
+    Returns:
+        str: アイコンのファイルパス
+    """
+    _icon_root = pathlib.Path(__file__).parent / 'icons' / icon_type
+    _icon_path = _icon_root / f'{name.lower()}_32.png'
+
+    if _icon_path.exists():
+        return str(_icon_path).replace('\\', '/')
+    else:
+        return f'{_icon_root}/default_32.png'
 
 
 def get_menu_from_menubar(menubar, menu_name):
@@ -190,13 +214,59 @@ def file_already_waning_dialog(darkcolor=True, parent=None):
     )
 
 
-def set_clipoboard_str(value: str):
-    _qb = QtGui.QClipboard()
-    _qb.setText(str(value))
+def set_clipboard_str(value: str):
+    QtWidgets.QApplication.clipboard().setText(value)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #=======================================#
 # Class
 #=======================================#
+class Widget(QtWidgets.QWidget):
+    """ Shinobi Pipeline Widget Class
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self._main_layout = QtWidgets.QVBoxLayout(self)
+        self._main_layout.setContentsMargins(0, 0, 0, 0)
+
+
+    def add_layout(self, layout: QtWidgets.QLayout):
+        """
+        レイアウトを追加
+        """
+        self._main_layout.addLayout(layout)
+    
+
+    def add_widget(self, widget: QtWidgets.QWidget):
+        """
+        ウィジェットを追加
+        
+        Args:
+            widget (QtWidgets.QWidget): 追加するウィジェット
+        """
+        self._main_layout.addWidget(widget)
+
+
+    def set_content_margins(self, value: int):
+        """ コンテンツのマージンを設定 """
+        self._main_layout.setContentsMargins(value, value, value, value)
+
+
 class Splitter(QtWidgets.QSplitter):
     """ Splitter 基底クラス """
     def __init__(self, parent=None):
@@ -209,7 +279,6 @@ class Splitter(QtWidgets.QSplitter):
 
     def print_sizes(self):
         print(f'{self.objectName()}:{self.sizes()}')
-        set_clipoboard_str(self.sizes())
     
 
 class HSplitter(Splitter):
@@ -363,6 +432,196 @@ class ListWidget(QtWidgets.QListWidget):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class FileExplorerWidget(QtWidgets.QWidget):
+    """ Shinobi File Explorer Widget
+    
+    Signals:
+
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self._init_ui()
+        self.init_signals()
+
+
+    def _init_ui(self):
+        self._layout = QtWidgets.QVBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+
+        self._filepath = PathWidget()
+        self._file_explorer = FileSystemWidget()
+
+        self._layout.addWidget(self._filepath)
+        self._layout.addWidget(self._file_explorer)
+
+
+    def init_signals(self):
+        """ シグナルを初期化 """
+        # self._file_explorer.clicked[QtCore.QModelIndex].connect(self._on_clicked)
+        self._file_explorer.pressed[QtCore.QModelIndex].connect(self._on_clicked)
+        self._file_explorer.doubleClicked[QtCore.QModelIndex].connect(self._file_explorer.open_current_file)
+
+
+    def _on_clicked(self, index):
+        _filepath = self._file_explorer.get_current_filepath()
+        self._filepath.set_value(_filepath)
+
+
+    def init_context_menu(self):
+        _ui = self._file_explorer
+
+        _ui.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        _ui.customContextMenuRequested.connect(self._setup_context_menu_file_explorer)
+
+
+    def _setup_context_menu_file_explorer(self, point):
+        _ui = self._file_explorer
+
+        _menu = QtWidgets.QMenu(_ui)
+
+        _action = QtGui.QAction('Open in Explorer', _ui)
+        _action.triggered.connect(self._file_explorer.open_in_explorer)
+        _menu.addAction(_action)
+
+        _menu.exec_(_ui.mapToGlobal(point))
+
+
+    def enable_rename(self):
+        self._file_explorer.enable_rename()
+
+
+    def get_current_filepath(self) -> str:
+        return self._file_explorer.get_current_filepath()
+    
+
+    def get_selected_filepaths(self) -> list[str]:
+        return self._file_explorer.get_selected_filepaths()
+
+
+
+    def open_current_file(self):
+        self._file_explorer.open_current_file()
+
+
+    def set_font(self, font: QtGui.QFont):
+        """ フォントをセット
+        
+        Args:
+            font(QtGui.QFont): フォント
+        """
+        self._filepath.set_font(font)
+        self._file_explorer.setFont(font)
+
+
+    def set_root(self, value: str):
+        """ ルートをセット
+        
+        Args:
+            value(str): ルートファイルパス
+        """
+        self._filepath.set_value(value)
+        self._file_explorer.set_root(value)
+
+
+
+
+
+class FileSystemWidget(QtWidgets.QTreeView):  
+    def __init__(self, parent=None):
+        """ ファイルエクスプローラー
+        """
+        super().__init__(parent)
+
+
+        self._model = QtWidgets.QFileSystemModel()
+        self.setModel(self._model)
+        header = self.header()
+        header.resizeSection(0, 300)
+        # self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
+        
+        self.setSortingEnabled(True)
+        self.sortByColumn(0, QtCore.Qt.AscendingOrder)
+
+
+    # ----------------------------------
+    # Get
+    # ----------------------------------
+    def get_root(self):
+        return mdk_libs.path.as_posix(self._model.rootPath())
+
+
+    def get_current_filepath(self):
+        _files = sorted(self.get_selected_filepaths())
+
+        if _files:
+            return _files[-1]
+
+
+    def get_selected_filepaths(self) -> list[str]:
+        _indexes = self.selectedIndexes()
+        _selected_files = [mdk_libs.path.as_posix(self._model.filePath(_indexes[_i]))
+                    for _i in range(0, len(_indexes), 4)]
+         
+        return _selected_files
+    
+
+    # ----------------------------------
+    # Set
+    # ----------------------------------
+    def set_root(self, root_path: str):
+        self._model.setRootPath(root_path)
+        self.setRootIndex(self._model.index(root_path))
+
+
+    # ----------------------------------
+    # Methods
+    # ----------------------------------
+    def enable_rename(self):
+        self.setEditTriggers(QtWidgets.QTreeView.DoubleClicked)
+
+
+    def open_current_file(self):
+        _filepath = self.get_current_filepath()
+
+        if os.path.isfile(_filepath):
+            self.open_file(_filepath)
+        else:
+            self.open_in_explorer(_filepath)
+
+    
+    def open_file(self, filepath):
+        mdk_libs.file.open_file(filepath)
+        
+
+    def open_in_explorer(self):
+        filepath = self.get_current_filepath()
+        mdk_libs.path.open_in_explorer(filepath)
+
+
+
+
+
+
+
+
 class FileListWidgetItem(QtWidgets.QListWidgetItem):
     """ ファイルリストアイテム """
     def __init__(self, filepath: str, parent=None):
@@ -375,6 +634,10 @@ class FileListWidgetItem(QtWidgets.QListWidgetItem):
     #---------------------------------#
     # Get
     #---------------------------------#
+    def get_name(self):
+        return self.text()
+    
+
     def get_value(self):
         return self._filepath
 
@@ -388,6 +651,39 @@ class FileListWidgetItem(QtWidgets.QListWidgetItem):
             self.setText(os.path.basename(value))
 
 
+
+class FileListTreeWidgetItem(QtWidgets.QTreeWidgetItem):
+    """ ファイルリストツリ―アイテム """
+    def __init__(self, filepath: str, parent=None):
+        super().__init__(parent)
+
+        self._value = mdk_libs.path.Path(None)
+
+        self.set_value(filepath)
+
+    #---------------------------------#
+    # Get
+    #---------------------------------#
+    def get_name(self) -> str:
+        return self.text(0)
+    
+    def get_value(self):
+        return self._value.get_value()
+
+    #---------------------------------#
+    # Set
+    #---------------------------------#
+    def set_value(self, value: str):
+        self._value.set_value(value)
+
+        if value:
+            self.setText(0, self._value.name())
+
+    #---------------------------------#
+    # Methods
+    #---------------------------------#
+    def open_dir(self):
+        self._value.open_dir()
 
 class FileListWidget(ListWidget):
     """ ファイルリストウィジェット """
@@ -468,6 +764,30 @@ class FileListWidget(ListWidget):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Imagelabel(QtWidgets.QLabel):
     """ イメージラベル """
 
@@ -534,6 +854,68 @@ class Imagelabel(QtWidgets.QLabel):
 
 
 
+class PathWidget(QtWidgets.QWidget):
+
+    text_changed = QtCore.Signal(str)
+
+    """ Path Widget """
+    def __init__(self, text='Path:', parent=None):
+        super().__init__(parent)
+    
+        self._main_layout = QtWidgets.QHBoxLayout(self)
+        self._main_layout.setContentsMargins(0, 0, 0, 0)
+
+        self._label_dir = QtWidgets.QLabel(text)
+        self._path = QtWidgets.QLineEdit()
+        self._button_copy = QtWidgets.QPushButton('C')
+        self._button_open = QtWidgets.QPushButton('O')
+
+        self._main_layout.addWidget(self._label_dir)
+        self._main_layout.addWidget(self._path)
+        self._main_layout.addWidget(self._button_copy)
+        self._main_layout.addWidget(self._button_open)
+
+        self._button_copy.clicked.connect(self._on_copy_button_clicked)
+        self._button_open.clicked.connect(self._on_open_button_clicked)
+        self._path.textChanged.connect(self._on_text_changed)
+
+
+    def _on_copy_button_clicked(self):
+        """ クリップボードにコピー """
+        set_clipboard_str(self.get_value())
+
+    def _on_open_button_clicked(self):
+        mdk_libs.path.open_dir(self.get_value())
+
+    def _on_text_changed(self, value: str):
+        self.text_changed.emit(value)
+
+    def get_value(self) -> str:
+        return self._path.text()
+
+    def set_font(self, font: QtGui.QFont):
+        self._label_dir.setFont(font)
+        self._path.setFont(font)
+        self._button_open.setFont(font)
+
+    def set_value(self, value: str) -> None:
+        self._path.setText(value)
+        self.update_style()
+
+
+    def update_style(self):
+        _bg_style = None
+
+        if self.parent():
+            _bg_style = self.parent().styleSheet()
+
+        if not os.path.exists(self.get_value()):
+            _bg_style = "background-color: rgb(100, 0, 0);"
+        else:
+            _bg_style = "background-color: rgb(60, 60, 100);"
+
+        if _bg_style:
+            self._path.setStyleSheet(_bg_style)
 
 
 class ProgressDialog(QtWidgets.QProgressDialog):
@@ -900,6 +1282,70 @@ class TabWidget(QtWidgets.QTabWidget):
                 pass
 
 
+
+class WebLineEditWidget(Widget):
+    text_changed = QtCore.Signal(str)
+
+    def __init__(self, text: str='URL:', parent=None):
+        super().__init__(parent)
+
+        
+        self._label = QtWidgets.QLabel(text)
+        self._text = QtWidgets.QLineEdit()
+        self._button = QtWidgets.QPushButton('Open')
+
+        self._layout = QtWidgets.QHBoxLayout()
+        self._layout.addWidget(self._label)
+        self._layout.addWidget(self._text)
+        self._layout.addWidget(self._button)
+        self.add_layout(self._layout)
+
+        self._button.clicked.connect(self._on_button_clicked)
+        self._text.textChanged.connect(self._on_text_changed)
+
+
+    def _on_button_clicked(self):
+        self.open_in_webbrowser()
+
+    def get_value(self) -> str:
+        return self._text.text()
+
+    def open_in_webbrowser(self):
+        url = self.get_value()
+        if url:
+            webbrowser.open(url, new=2)
+
+    def _on_text_changed(self, value: str):
+        self.text_changed.emit(value)
+
+
+    def set_font(self, font: QtGui.QFont):
+        self._label.setFont(font)
+        self._text.setFont(font)
+        self._button.setFont(font)
+
+
+    def set_label_width(self, value: int):
+        self._label.setFixedWidth(value)
+
+
+    def set_value(self, value: str):
+        self._text.setText(value)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #=======================================#
 # QtTools
 #=======================================#
@@ -980,6 +1426,268 @@ class DictEditWidget(TreeWidget):
         item.setText(0, str(key))
         if value is not None:
             item.setText(1, str(value))
+
+
+
+
+class FilterDictEditWidget(Widget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
+        self._init_ui()
+
+
+    def _init_ui(self):
+        self._filter_widget = QtWidgets.QLineEdit()
+        self._dict_widget = DictEditWidget()
+
+        self.add_widget(self._filter_widget)
+        self.add_widget(self._dict_widget)
+
+        # self._filter_widget.textEdited.connect(self._on_filter_changed)
+        self._filter_widget.textChanged.connect(self._on_filter_changed)
+
+
+    def init_context_menu(self):
+        self._dict_widget.init_context_menu()
+
+
+    def _on_filter_changed(self, text: str):
+        if text != '<Filter>':
+            for item in self._dict_widget.get_all_items():
+                key = item.text(0)
+
+                if text.lower() in key.lower():
+                    item.setHidden(False)
+                else:
+                    item.setHidden(True)
+
+
+    def set_font(self, font: QtGui.QFont):
+        self._filter_widget.setFont(font)
+        self._dict_widget.set_font(font)
+
+
+    def set_section_width(self, index: int, width: int):
+        self._dict_widget.header().resizeSection(index, width)
+
+
+    def get_value(self) -> dict:
+        return self._dict_widget.get_value()
+    
+
+    def set_filter(self, value: str):
+        self._filter_widget.setText(value)
+
+
+    def set_value(self, value: dict):
+        self._dict_widget.set_value(value)
+
+
+    def clear(self):
+        self._dict_widget.clear()
+
+
+
+
+
+
+
+
+
+
+class FileTreeWidgetItem(QtWidgets.QTreeWidgetItem):
+    def __init__(self, filepath, parent=None):
+        super().__init__(parent)
+
+        self._filepath = pathlib.Path(filepath)
+        self._name = None
+
+        self.set_value(filepath)
+
+
+        """ 1.Name """
+        name = self._filepath.name
+        self.name = name
+
+        if not self._filepath.is_file():
+            name = f'[{name}]'
+        
+        self.setText(0, name)
+        
+
+        """ 2.Size """
+        file_size = self._filepath.stat().st_size / 1000000
+        self.setText(1, f'{file_size:,.03f} MB')
+        
+
+        """ 3.Ext """
+        file_type = pathlib.Path(filepath).suffix
+        self.setText(2, f'{file_type}')
+
+        """ Updated """
+        updated = self._filepath.stat().st_ctime
+        dt = datetime.datetime.fromtimestamp(updated)
+        self.setText(3, dt.strftime('%Y-%m-%d- %H:%M:%S'))
+    
+
+    #---------------------------------#
+    # Set / Get
+    #---------------------------------#
+    def set_value(self, filepath: str):
+        # self._filepath = pathlib.Path(filepath)
+        self._filepath = pathlib.Path(filepath)
+        
+
+    def get_value(self) -> str:
+        return self._filepath.as_posix()
+
+
+    def get_name(self):
+        return self.name
+    
+
+
+
+
+class FileTreeWidget(TreeWidget):
+    item_clicked = QtCore.Signal(QtWidgets.QTreeWidgetItem) 
+    item_double_clicked = QtCore.Signal(QtWidgets.QTreeWidgetItem)
+    
+    """ FileListWidegt
+
+    * フォルダ内のファイルリストを表示
+    
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self._root = mdk_libs.path.Path(None)
+        
+        self.FILELIST_HEADERS = {
+            'Name': 280,
+            'Size': 60,
+            'Ext': 50,
+            'Updated': 100,
+        }
+    
+        self.set_headers(self.FILELIST_HEADERS)
+        self.setSelectionMode(
+                QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
+        
+        self.setRootIsDecorated(False)
+        self.setSortingEnabled(True)
+        self.sortByColumn(0, QtCore.Qt.AscendingOrder) # Qt.DescendingOrder
+
+
+        self.itemClicked.connect(self._on_item_clicked)
+        self.itemDoubleClicked.connect(self._on_item_double_clicked)
+
+
+    def _on_item_clicked(self, item):
+        self.item_clicked.emit(item)
+
+
+    def _on_item_double_clicked(self, item):
+        self.item_double_clicked.emit(item)
+
+
+    def init_signals(self):
+        self.itemDoubleClicked.connect(self.on_item_duble_clicked)
+
+
+    # ---------------------------------#
+    # Update UI
+    # ---------------------------------#
+    def refresh(self):
+        self.clear()
+        _root = self.get_root()
+
+        if os.path.isdir(_root):
+            _files = [ _file for _file in self._root.listdir()
+                if not pathlib.Path(_file.get_value()).suffix == '.json' ]
+            
+            if _files:
+                FileTreeWidgetItem((self._root.join('..')).get_value(), self)
+                [ FileTreeWidgetItem(_file.get_value(), self) for _file in _files ]
+
+
+    # ---------------------------------#
+    # Event
+    # ---------------------------------#
+    def on_item_duble_clicked(self, item):
+        if item:
+            filepath = self.get_current_path()
+
+            if os.path.isfile(filepath):
+                self.open_file(filepath)
+
+
+            elif os.path.isdir(filepath):
+                self.set_root(os.path.abspath(filepath))
+
+    # ---------------------------------#
+    # Get
+    # ---------------------------------# 
+
+    def get_selected_filepaths(self):
+        return [ item.get_value() for item in self.selectedItems()]
+
+
+    def get_current_path(self):
+        item = self.list.currentItem()
+        
+        if item:
+            return item.get_value()
+
+
+    def get_root(self):
+        return self._root.get_value()
+    
+
+    # ---------------------------------#
+    # Set
+    # ---------------------------------#
+    def set_root(self, filepath: str):
+        if os.path.isdir(filepath):
+            self._root.set_value(filepath)
+
+            self.refresh()
+
+
+    # ---------------------------------#
+    # Methods
+    # ---------------------------------#
+    def copy_to_clipboard(self):
+        filelist = self.get_selected_filepaths()
+        result = '\n'.join(filelist)
+
+        set_clipboard_str(result)
+
+
+    def open_dir(self, filepath):
+        """ ファイルを開く """
+        mdk_libs.file.open_dir(filepath)
+
+
+    def open_file(self, filepath):
+        """ ファイルを開く """
+        mdk_libs.file.open_file(filepath)
+
+
+
+    def select(self, item_name):
+        """ Select item by name. """
+        try:
+            item = (self.list.findItems(item_name, QtCore.Qt.MatchContains))[0]
+            
+            if item:
+                self.list.setCurrentItem(item)
+        except:
+            pass
+
+
+
 
 
 
